@@ -1,0 +1,79 @@
+"""Data preparation: raw IBB files -> small tidy tables."""
+from __future__ import annotations
+
+import datetime
+from pathlib import Path
+
+import duckdb
+import pandas as pd
+
+SQL_PATH = Path(__file__).resolve().parents[1] / "sql" / "rail_hourly.sql"
+_EXCEL_EPOCH = datetime.date(1899, 12, 30)
+
+
+def _quote(path: Path) -> str:
+    return str(path).replace("'", "''")
+
+
+def aggregate_rail_month(csv_path: Path, out_parquet: Path, expected_month: str | None = None) -> int:
+    """Aggregate one monthly CSV to rail boardings per line, station, date, hour.
+
+    Returns the number of rows written. If ``expected_month`` ("YYYY-MM") is given,
+    every date in the file must fall in that month, otherwise nothing is written
+    and ValueError is raised (the portal has at least one misnamed file).
+    """
+    query = SQL_PATH.read_text().format(csv_path=_quote(Path(csv_path)))
+    con = duckdb.connect()
+    try:
+        con.execute(f"CREATE TEMP TABLE rail AS {query}")
+        n, lo, hi = con.execute("SELECT count(*), min(date), max(date) FROM rail").fetchone()
+        if expected_month is not None and n:
+            months = {lo.strftime("%Y-%m"), hi.strftime("%Y-%m")}
+            if months != {expected_month}:
+                raise ValueError(
+                    f"{Path(csv_path).name}: expected only {expected_month} dates, found {lo} to {hi}"
+                )
+        Path(out_parquet).parent.mkdir(parents=True, exist_ok=True)
+        con.execute(f"COPY rail TO '{_quote(Path(out_parquet))}' (FORMAT parquet)")
+        return n
+    finally:
+        con.close()
+
+
+def load_hourly(parquet_dir: Path) -> pd.DataFrame:
+    """All monthly parquet files in a directory as one frame."""
+    files = sorted(Path(parquet_dir).glob("*.parquet"))
+    if not files:
+        raise FileNotFoundError(f"no parquet files in {parquet_dir}")
+    df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    df["date"] = pd.to_datetime(df["date"])
+    df["hour"] = df["hour"].astype(int)
+    return df
+
+
+def _to_month(value) -> str | None:
+    if value is None or value == "":
+        return None
+    if isinstance(value, (datetime.datetime, datetime.date)):
+        return value.strftime("%Y-%m")
+    if isinstance(value, (int, float)):
+        return (_EXCEL_EPOCH + datetime.timedelta(days=int(value))).strftime("%Y-%m")
+    return pd.Timestamp(value).strftime("%Y-%m")
+
+
+def load_trips(xlsx_path: Path) -> pd.DataFrame:
+    """Monthly trips per line in long format: month ("YYYY-MM"), line, trips."""
+    import openpyxl
+
+    ws = openpyxl.load_workbook(xlsx_path, data_only=True).active
+    rows = ws.iter_rows(values_only=True)
+    header = next(rows)
+    records = []
+    for row in rows:
+        month = _to_month(row[0])
+        if month is None:
+            continue
+        for line, value in zip(header[1:], row[1:]):
+            if line and value not in (None, ""):
+                records.append({"month": month, "line": str(line).strip(), "trips": float(value)})
+    return pd.DataFrame(records, columns=["month", "line", "trips"])

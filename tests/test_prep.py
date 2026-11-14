@@ -1,0 +1,83 @@
+import datetime
+from pathlib import Path
+
+import openpyxl
+import pytest
+
+from metro.prep import aggregate_rail_month, load_hourly, load_trips
+
+FIXTURE = Path(__file__).parent / "fixtures" / "hourly_sample.csv"
+
+
+def _build(tmp_path):
+    n = aggregate_rail_month(FIXTURE, tmp_path / "202410.parquet")
+    return n, load_hourly(tmp_path)
+
+
+def test_aggregate_keeps_only_rail_and_sums(tmp_path):
+    n, df = _build(tmp_path)
+    assert n == len(df) == 5
+    assert set(df["line"]) == {"M2", "M4"}
+    row = df[(df.line == "M2") & (df.station == "LEVENT") & (df.hour == 8) & (df.date == "2024-10-01")].iloc[0]
+    assert (row.boardings, row.passengers) == (23, 21)
+    assert (row.b_full, row.b_discount, row.b_free, row.b_transfer) == (14, 6, 2, 4)
+
+
+def test_station_names_are_trimmed_and_uppercased(tmp_path):
+    _, df = _build(tmp_path)
+    row = df[(df.line == "M2") & (df.hour == 9)].iloc[0]
+    assert row.station == "LEVENT" and row.b_discount == 7
+
+
+def test_blank_station_is_kept_as_unknown(tmp_path):
+    _, df = _build(tmp_path)
+    assert df[(df.line == "M4") & (df.station == "UNKNOWN")].boardings.sum() == 5
+
+
+def test_hour_text_becomes_int(tmp_path):
+    _, df = _build(tmp_path)
+    assert df[df.station == "KOZYATAGI"].hour.tolist() == [0]
+
+
+def test_total_boardings_match_raw_rail_rows(tmp_path):
+    _, df = _build(tmp_path)
+    assert df.boardings.sum() == 46
+
+
+def test_expected_month_accepts_matching_month(tmp_path):
+    assert aggregate_rail_month(FIXTURE, tmp_path / "202410.parquet", expected_month="2024-10") == 5
+
+
+def test_dates_outside_expected_month_raise(tmp_path):
+    out = tmp_path / "202409.parquet"
+    with pytest.raises(ValueError, match="2024-09"):
+        aggregate_rail_month(FIXTURE, out, expected_month="2024-09")
+    assert not out.exists()
+
+
+def _xlsx(tmp_path, first_col):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(["Tarih", "M1", "M2"])
+    ws.append([first_col[0], 100, 200])
+    ws.append([first_col[1], 110, None])
+    path = tmp_path / "trips.xlsx"
+    wb.save(path)
+    return path
+
+
+EXPECTED_TRIPS = [
+    {"month": "2024-10", "line": "M1", "trips": 100.0},
+    {"month": "2024-10", "line": "M2", "trips": 200.0},
+    {"month": "2024-11", "line": "M1", "trips": 110.0},
+]
+
+
+def test_load_trips_long_format(tmp_path):
+    path = _xlsx(tmp_path, [datetime.date(2024, 10, 1), datetime.date(2024, 11, 1)])
+    assert load_trips(path).to_dict("records") == EXPECTED_TRIPS
+
+
+def test_load_trips_accepts_excel_serial_dates(tmp_path):
+    path = _xlsx(tmp_path, [45566, 45597])  # 2024-10-01, 2024-11-01
+    assert load_trips(path).to_dict("records") == EXPECTED_TRIPS

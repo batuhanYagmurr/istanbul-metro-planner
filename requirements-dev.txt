@@ -1,0 +1,8 @@
+-r app/requirements.txt
+duckdb
+pyarrow
+openpyxl
+scikit-learn
+pytest
+jupyter
+nbconvert
