@@ -1,0 +1,25 @@
+run,test,level,measure,wape,mape,n_days
+closed-0.2,main Apr-May 2024,none,station_day,0.1257,0.7773,
+closed-0.2,main Apr-May 2024,none,line_band,0.1191,0.3621,
+closed-0.2,main Apr-May 2024,station,station_day,0.1067,0.7956,
+closed-0.2,main Apr-May 2024,station,line_band,0.1099,0.3262,
+closed-0.2,main Apr-May 2024,group,station_day,0.1156,0.8187,
+closed-0.2,main Apr-May 2024,group,line_band,0.1125,0.3394,
+closed-0.2,extra Jun-Jul 2024,none,station_day,0.2312,0.3193,
+closed-0.2,extra Jun-Jul 2024,none,line_band,0.2399,0.4503,
+closed-0.2,extra Jun-Jul 2024,station,station_day,0.1522,0.1986,
+closed-0.2,extra Jun-Jul 2024,station,line_band,0.1694,0.3527,
+closed-0.2,extra Jun-Jul 2024,group,station_day,0.1575,0.2261,
+closed-0.2,extra Jun-Jul 2024,group,line_band,0.1693,0.3946,
+closed-0.2,special 2024: public_holiday,group,station_day,0.3672,8.2414,5.0000
+closed-0.2,special 2024: public_holiday,none,station_day,0.3718,7.4821,5.0000
+closed-0.2,special 2024: public_holiday,station,station_day,0.3321,8.0684,5.0000
+closed-0.2,special 2024: religious_holiday,group,station_day,0.3189,0.4763,9.0000
+closed-0.2,special 2024: religious_holiday,none,station_day,0.4997,0.8636,9.0000
+closed-0.2,special 2024: religious_holiday,station,station_day,0.2356,0.2703,9.0000
+closed-0.2,special 2024: school_break,group,station_day,0.1084,0.9347,40.0000
+closed-0.2,special 2024: school_break,none,station_day,0.2113,1.0923,40.0000
+closed-0.2,special 2024: school_break,station,station_day,0.0962,0.9017,40.0000
+closed-0.2,complete days Aug-Oct 2024,none,network_day,0.1532,0.1654,19.0000
+closed-0.2,complete days Aug-Oct 2024,station,network_day,0.1058,0.1182,19.0000
+closed-0.2,complete days Aug-Oct 2024,group,network_day,0.1071,0.1195,19.0000

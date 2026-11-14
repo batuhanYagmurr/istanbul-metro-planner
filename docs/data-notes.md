@@ -72,3 +72,7 @@ Share of rail boardings: Marmaray 19.7%, M2 15.1%, T1 12.3%, M1 11.6%, M4 9.8%, 
 ## Hours
 
 Hours 0–5 carry 0.69% of rail boardings.
+
+## Closed-station days
+
+Rule (after the external review, 2026-11-15): a normal day with boardings below 20% of the unit's median for that day type, the median taken over earlier days only, is a closed-station day (`CLOSED_THRESHOLD = 0.2` in `metro/forecast.py`). Before 2024-08-01 there are 1,214 such unit-days at 113 of 383 units. They are left out of profiles and special-day baselines and still scored in the backtests. Effect on the backtests: at most 0.1 points of WAPE; see `docs/backtests/README.md`.
