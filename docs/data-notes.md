@@ -15,7 +15,7 @@ What the real IBB data looked like when it was built on 2026-11-15. Later tasks 
 
 ## The data is incomplete from August 2024 (most important finding)
 
-January 2023 to July 2024 (19 months, 577 days) has every day complete. From August 2024 most days are nearly empty in the source files themselves, for buses and ferries as well as rail:
+January 2023 to July 2024 (19 months, 578 days) has every day complete. From August 2024 most days are nearly empty in the source files themselves, for buses and ferries as well as rail:
 
 | Month | Days in file | Complete days | Which |
 |---|---|---|---|
@@ -23,7 +23,7 @@ January 2023 to July 2024 (19 months, 577 days) has every day complete. From Aug
 | 2024-09 | 30 | 8 | 1, 4–10 |
 | 2024-10 | 18 (file ends on the 18th) | 5 | 2, 4, 16, 17, 18 |
 
-A complete day has 1.7–3.5 million rail boardings; the other days have at most 7,695. This, not a change in row detail, is why the files shrink from about 1.7 GB to about 0.3 GB.
+A complete day has 1.2–3.8 million rail boardings (1,198,341 to 3,817,592; 597 complete days in all); the other days have at most 7,695. This, not a change in row detail, is why the files shrink from about 1.7 GB to about 0.3 GB.
 
 On the 19 complete days the numbers continue smoothly from July 2024. Weekday average boardings per line, complete days only, relative to July 2024: August 0.86–0.95 for the large lines (M1 0.90, M2 0.86, M4 0.86, M5 0.90, M7 0.91, T1 0.95, Marmaray 0.93), September 0.95–1.03, October 1.07–1.24. At station level the August/July ratio has median 0.90, with 90% of units between 0.77 and 1.01. Ticket-type and transfer shares are unchanged across the break (full fare 44.7% → 46.6%, discounted 44.3% → 41.9%, free 10.6% → 11.0%, transfers 13.2% → 13.5%). Based on 4–5 complete weekdays per month, so the ratios are rough.
 

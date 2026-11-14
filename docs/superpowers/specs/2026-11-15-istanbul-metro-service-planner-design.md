@@ -187,7 +187,7 @@ Araçlar (benim kararım): Python, DuckDB, pandas, scikit-learn, Streamlit, Alta
 Görev 2'de kaynak verinin Ağustos 2024'ten itibaren eksik olduğu görüldü (ayrıntı `docs/data-notes.md`).
 Batuhan'ın kararı:
 
-- **Analiz dönemi:** Ocak 2023 – Temmuz 2024 (19 tam ay). Gruplar, katsayılar ve profiller yalnızca bu dönemden.
+- **Analiz dönemi:** Ocak 2023 – Temmuz 2024 (19 tam ay, 578 gün; tam bir günde 1,2–3,8 milyon raylı biniş). Gruplar, katsayılar ve profiller yalnızca bu dönemden.
 - **Ana sınama:** Nisan–Mayıs 2024 (okul dönemi), 8 hafta.
 - **Ek sınama:** Haziran–Temmuz 2024, 8 hafta.
 - **Tahmin:** Ağustos 2024. README ve panelde "yaz senaryosu" (summer scenario) olarak adlandırılır.
