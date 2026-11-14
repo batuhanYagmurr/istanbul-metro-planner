@@ -15,9 +15,11 @@
 - All project outputs (README, panel, notebook, code comments, commit messages) are in English.
 - Demand measure is `number_of_passage` (boardings). `number_of_passenger` is kept only as auxiliary.
 - Analysis unit is the station-line pair (`line_name` + `station_poi_desc_cd`).
-- Period: rail rows (`road_type = 'RAYLI'`) of the hourly dataset, 2023-01 to 2024-10. If download size is a problem, shorten to 2024-01 to 2024-10 and say so in the README.
+- Period built: rail rows (`road_type = 'RAYLI'`) of the hourly dataset, 2023-01 to 2024-10 (all 22 months are in `data/raw/rail_hourly/`; months after 2024-07 are used only for the complete-day comparison). If download size is a problem, shorten to 2024-01 to 2024-10 and say so in the README.
 - Download budget (checked 2026-11-15 from catalogue sizes): 2023-01..2024-10 is 31.5 GB in total (2024 alone 12.5 GB); files are 1.3–1.8 GB each through 2024-07, then 0.27–0.39 GB for 2024-08..10. Free disk was 686 GB. Only one raw CSV may exist on disk at a time.
-- Forecast horizon: 2024-11-01 to 2024-11-28. The README states that the data ends in October 2024.
+- **Period decision (Batuhan, 2026-11-15; overrides earlier dates in this plan):** analysis window 2023-01-01 to 2024-07-31 (`ANALYSIS_END = "2024-07-31"`). Main backtest 2024-04-01..2024-05-26 (school term, 8 weeks); extra backtest 2024-06-03..2024-07-28 (8 weeks). Forecast window 2024-08-01..2024-08-31, called "summer scenario" in README and panel. The 19 complete days of 2024-08..10 are compared with forecasts made from data up to 2024-07-31.
+- Complete day: a date whose total rail boardings are at least 100,000 (complete days have 1.2–3.5 million, incomplete ones at most 7,695; see `docs/data-notes.md`). Only complete days may be used anywhere.
+- The source data's break (2024-08..10 mostly empty, files end 2024-10-18, Nov/Dec empty) goes in the README's "What we can't measure" section, stated as a property of the IBB files.
 - No ML models beyond k-means (discovery) and a shallow decision tree (rule extraction). No LightGBM, Prophet, deep learning.
 - Raw CSVs are never kept or committed. `data/raw/` is git-ignored. The panel runs with only `app/data.json`.
 - Recommendations compare a line with itself only, never lines with each other.
@@ -280,6 +282,7 @@ git commit -m "feat: build script, calendar and data notes from the real IBB dat
 **Interfaces:**
 - Consumes: hourly and calendar frames (Tasks 1–2)
 - Produces:
+  - In `metro/prep.py`: `ANALYSIS_END = "2024-07-31"`, `MIN_DAY_BOARDINGS = 100_000`, `complete_days(hourly) -> pd.DatetimeIndex` (dates whose total boardings ≥ `MIN_DAY_BOARDINGS`), `analysis_hourly(hourly) -> pd.DataFrame` (rows with date ≤ `ANALYSIS_END` and on a complete day; also drops line `34A`). Tests in `tests/test_prep.py`: `test_complete_days_drops_thin_days` (a date with 7,695 boardings is excluded, one with 1,200,000 kept) and `test_analysis_hourly_stops_at_july_2024` (a 2024-08-25 row is dropped). Features, groups and factors are computed on `analysis_hourly(...)` only.
   - `station_features(hourly, calendar, min_months: int = 12) -> pd.DataFrame` indexed by `(line, station)`, columns `weekend_ratio, am_share, midday_share, pm_share, late_share, discount_share, transfer_share, months_active, eligible` (bool)
   - `FEATURE_COLS: list[str]` (the seven feature columns, in that order)
   - `discover_groups(features, k_values=(4, 5, 6), seed: int = 0) -> pd.Series` (cluster id per eligible unit; k chosen by best silhouette score)
@@ -348,7 +351,8 @@ git commit -m "feat: station features, k-means discovery and rule extraction"
   - `special_factors(hourly, calendar, groups, before: pd.Timestamp, level: str) -> pd.DataFrame` columns `line, station, special, factor`; `level` in `{"none", "station", "group"}`
   - `forecast(profile, factors, future_calendar) -> pd.DataFrame` columns `date, line, station, hour, boardings`
   - `mape(actual: pd.Series, predicted: pd.Series) -> float` (mean of |a−p|/a over rows with a > 0)
-  - `backtest_recent(hourly, calendar, groups, start="2024-09-02", end="2024-10-27", level="group") -> dict` with keys `station_day_mape`, `line_band_mape`
+  - `backtest_recent(hourly, calendar, groups, start="2024-04-01", end="2024-05-26", level="group") -> dict` with keys `station_day_mape`, `line_band_mape` (main backtest; called again with `start="2024-06-03", end="2024-07-28"` for the extra backtest)
+  - `compare_complete_days(hourly, calendar, groups, level: str, as_of="2024-08-01") -> pd.DataFrame` columns `date, actual, forecast, ape` at line-day level summed over all lines, one row per complete day after `as_of` (expected 19 rows on real data); uses `complete_days` from `metro/prep.py`
   - `backtest_special(hourly, calendar, groups, year: int = 2024) -> pd.DataFrame` columns `special, level, station_day_mape, n_days` for the three levels
 
 Factor definition: for each special day `d` before `before`, baseline = the unit's mean daily boardings on non-special days of the same `day_type` in the 28 days before `d`; ratio = actual daily boardings ÷ baseline. Station level: factor = median ratio per `(unit, special)`. Group level: sum actual and sum baseline over the group's units first, then the median of those group ratios, applied to every unit in the group. `none`: all factors 1.0. Any missing, zero-baseline or non-finite case → 1.0. Factors apply to all hours of the day equally.
@@ -400,9 +404,19 @@ def test_backtest_recent_returns_both_levels_of_error():
     assert set(r) == {"station_day_mape", "line_band_mape"} and all(np.isfinite(v) for v in r.values())
 ```
 
+Add to the Step 1 tests:
+
+```python
+def test_compare_complete_days_skips_thin_days_and_uses_only_earlier_data():
+    # data to 2024-07-31 plus 2024-08-25 (complete, 1.5M) and 2024-08-26 (thin, 500); 2024-08-25 actual is doubled vs profile
+    r = compare_complete_days(hourly, calendar, groups, level="none")
+    assert r.date.dt.strftime("%Y-%m-%d").tolist() == ["2024-08-25"]
+    assert r.ape.item() == pytest.approx(0.5)
+```
+
 - [ ] **Step 2: Run to verify failure** — `.venv/bin/pytest tests/test_forecast.py tests/test_backtest.py -v` → FAIL (imports).
 - [ ] **Step 3: Implement `metro/forecast.py` and `metro/backtest.py`**
-- [ ] **Step 4: Run to verify pass** — same command → 9 passed.
+- [ ] **Step 4: Run to verify pass** — same command → 10 passed.
 - [ ] **Step 5: Commit**
 
 ```bash
@@ -498,21 +512,24 @@ git commit -m "feat: load index, recommendation rule and robustness check"
 
 ```
 {
-  "meta": {"data_start": "2023-01-01", "data_end": "2024-10-31",
-           "forecast_start": "2024-11-01", "forecast_end": "2024-11-28",
+  "meta": {"data_start": "2023-01-01", "data_end": "2024-07-31",
+           "forecast_start": "2024-08-01", "forecast_end": "2024-08-31", "scenario": "summer",
            "backtest": {"station_day_mape": f, "line_band_mape": f,
+                        "extra": {"window": "2024-06-03..2024-07-28", "station_day_mape": f, "line_band_mape": f},
+                        "complete_days": [{"date": "2024-08-25", "actual": n, "forecast": f, "ape": f}],
+                        "complete_days_mape": f,
                         "special": [{"special": s, "level": l, "station_day_mape": f, "n_days": n}],
                         "level_used": "group" | "station" | "none"},
            "rule_agreement": f, "rule": "<GROUP_RULE>"},
   "groups": [{"name": s, "n_stations": n}],
   "lines": {"M2": {
-      "has_trips": bool, "trips_month_used": "2024-11" | null, "trips_month_is_fallback": bool,
+      "has_trips": bool, "trips_month_used": "2024-08" | null, "trips_month_is_fallback": bool,
       "monthly": [{"month": "2023-01", "boardings": n, "trips": n | null}],
       "days": {"weekday": n, "saturday": n, "sunday": n},
       "trips_month": n | null,
       "hourly": {"weekday": [24 floats], "saturday": [...], "sunday": [...]},
       "stations": [{"station": s, "group": s | null, "boardings_day": f}],
-      "daily": [{"date": "2024-11-01", "boardings": f, "special": s}]}}
+      "daily": [{"date": "2024-08-01", "boardings": f, "special": s}]}}
 }
 ```
 
@@ -520,15 +537,16 @@ git commit -m "feat: load index, recommendation rule and robustness check"
   - `data/recommendations.csv` columns `line, day_type, band, boardings_per_day, trips_per_day, load, label, robust` at base assumptions (1.0, 1.0), lines with trips only.
   - `data/station_groups.csv` columns `line, station, group, cluster`.
 
-`level_used` = the level with the lowest boarding-weighted `station_day_mape` in `backtest_special`; ties → the simpler one (`none` < `group` < `station`). Trips for the card: November 2024 from `trips_monthly.csv`; if absent for a line, its last available month with `trips_month_is_fallback: true`.
+`level_used` = the level with the lowest boarding-weighted `station_day_mape` in `backtest_special`; ties → the simpler one (`none` < `group` < `station`). Trips for the card: August 2024 from `trips_monthly.csv`; if absent for a line, its last available month with `trips_month_is_fallback: true`.
 
-- [ ] **Step 1: Write the failing tests** (synthetic small inputs: 2 lines × 2 stations × 14 months, line "MX" absent from trips, line "M1" missing the 2024-11 trips row)
+- [ ] **Step 1: Write the failing tests** (synthetic small inputs: 2 lines × 2 stations × 14 months, line "MX" absent from trips, line "M1" missing the 2024-08 trips row)
 
 ```python
 def test_schema_and_window():
     d = build_app_data(hourly, calendar, trips, {0: "A", 1: "B"})
-    assert d["meta"]["forecast_start"] == "2024-11-01" and d["meta"]["forecast_end"] == "2024-11-28"
-    assert sum(d["lines"]["M1"]["days"].values()) == 28 and len(d["lines"]["M1"]["daily"]) == 28
+    assert d["meta"]["forecast_start"] == "2024-08-01" and d["meta"]["forecast_end"] == "2024-08-31"
+    assert d["meta"]["data_end"] == "2024-07-31" and d["meta"]["scenario"] == "summer"
+    assert sum(d["lines"]["M1"]["days"].values()) == 31 and len(d["lines"]["M1"]["daily"]) == 31
     assert all(len(v) == 24 for v in d["lines"]["M1"]["hourly"].values())
 
 def test_line_without_trips_is_demand_only():
@@ -537,7 +555,7 @@ def test_line_without_trips_is_demand_only():
 
 def test_missing_forecast_month_falls_back_and_is_flagged():
     m1 = build_app_data(...)["lines"]["M1"]
-    assert m1["trips_month_used"] == "2024-10" and m1["trips_month_is_fallback"] is True
+    assert m1["trips_month_used"] == "2024-07" and m1["trips_month_is_fallback"] is True
 
 def test_no_nan_or_inf_anywhere_and_json_serializable():
     s = json.dumps(build_app_data(...), allow_nan=False)   # raises on NaN/inf
@@ -585,11 +603,11 @@ Layout (one page, wide, English), following the sketch in spec §5:
 1. Title "Istanbul Metro Service Planner", selectors `Line` (lines with trips first) and `Day type`.
 2. Four tiles: "Boardings / day", "Trips / day", "Boardings / trip", "Forecast error (backtest)" = `meta.backtest.station_day_mape` as a percentage. Tile labels say "boardings", never "riders".
 3. Left: recommendation card for the selected day type — six bands, label ADD / keep / can reduce, with "(robust)" where `robust` is True. Right: 24-hour chart of forecast boardings with the assumed trips per hour as a second series, peak bands shaded.
-4. Left: bar chart of stations on the line coloured by group. Right: daily forecast bars for 2024-11-01..28 with special days marked.
+4. Left: bar chart of stations on the line coloured by group. Right: daily forecast bars for 2024-08-01..31 labelled "Summer scenario: August 2024", special days marked, and the actual totals of the complete August days as dots.
 5. A chart of monthly boardings per trip for the line, captioned as the measured indicator.
 6. Two sliders: "Peak-hour service vs off-peak" 1.0–2.0 step 0.25, "Weekend service vs weekday" 0.6–1.0 step 0.1 (the same grids as `robust`). Next to them an expander "What we can't measure" with the four limits from the spec, and the group rule text.
 7. Line without trips: tiles 2 and 3 show "n/a", the card is replaced by "No trip data is published for this line — demand view only." If `trips_month_is_fallback`, a caption states which month's trips were used.
-8. Footer: data source (IBB Open Data Portal), data period, "Data ends October 2024".
+8. Footer: data source (IBB Open Data Portal), analysis period 2023-01..2024-07, "Source files are incomplete from August 2024".
 
 - [ ] **Step 1: Write the failing smoke tests**
 
@@ -643,9 +661,9 @@ git commit -m "feat: one-page Streamlit panel"
 **Interfaces:**
 - Consumes: `metro/*`, `app/data.json`, `data/*.csv`, `docs/data-notes.md`
 
-Notebook sections (each calls `metro/` functions; no logic re-implemented in cells): 1 Question and data; 2 Data prep (shows `sql/rail_hourly.sql`, monthly totals); 3 Measured indicator: boardings per trip by line and month; 4 Station features and groups (cluster means, rule, agreement, examples); 5 Forecast method; 6 Backtests (recent window; special days by level — state plainly whether groups helped); 7 Recommendation card at base assumptions; 8 Sensitivity (how many labels are robust); 9 What we can't measure.
+Notebook sections (each calls `metro/` functions; no logic re-implemented in cells): 1 Question and data; 2 Data prep (shows `sql/rail_hourly.sql`, monthly totals); 3 Measured indicator: boardings per trip by line and month; 4 Station features and groups (cluster means, rule, agreement, examples); 5 Forecast method; 6 Backtests (main Apr–May 2024, extra Jun–Jul 2024, special days by level — state plainly whether groups helped; then the 19 complete days of Aug–Oct 2024 against the forecast); 7 Recommendation card at base assumptions; 8 Sensitivity (how many labels are robust); 9 What we can't measure.
 
-README sections: title and one-line question; live-app placeholder line ("Live app: not deployed yet"); What we found (3–5 numbered findings with numbers); Recommendation table (lines × the cells labelled add/reduce at base assumptions, robust ones marked); How it works; What we can't measure (the four limits); What's in this repo; Run it yourself (`pip install -r requirements-dev.txt`, `python scripts/build_data.py`, `python scripts/make_app_data.py`, `streamlit run app/streamlit_app.py`; note the panel alone needs only `app/requirements.txt`); Data source and licence (IBB Open Data Portal); a short "Data notes" paragraph stating that the portal's "Aralık 2024" file is named `202512` and, like November 2024, is empty, so the data ends in October 2024, and that monthly files shrink sharply from August 2024 (with what Task 2 found about it).
+README sections: title and one-line question; live-app placeholder line ("Live app: not deployed yet"); What we found (3–5 numbered findings with numbers); Recommendation table (lines × the cells labelled add/reduce at base assumptions, robust ones marked); How it works; What we can't measure (the four limits, plus the source data's break: Aug–Oct 2024 mostly empty in the IBB files, so the analysis stops at July 2024 and the August forecast is a summer scenario); What's in this repo; Run it yourself (`pip install -r requirements-dev.txt`, `python scripts/build_data.py`, `python scripts/make_app_data.py`, `streamlit run app/streamlit_app.py`; note the panel alone needs only `app/requirements.txt`); Data source and licence (IBB Open Data Portal); a short "Data notes" paragraph stating that the portal's "Aralık 2024" file is named `202512` and, like November 2024, is empty, so the data ends in October 2024, and that monthly files shrink sharply from August 2024 (with what Task 2 found about it).
 
 - [ ] **Step 1: Write the failing README consistency test**
 
@@ -655,7 +673,9 @@ def test_readme_numbers_come_from_data_json():
     assert f'{d["meta"]["backtest"]["station_day_mape"]:.0%}' in readme
     assert f'{d["meta"]["rule_agreement"]:.0%}' in readme
     assert str(len(d["groups"])) in readme and all(g["name"] in readme for g in d["groups"])
-    assert "October 2024" in readme and "What we can't measure" in readme
+    assert "What we can't measure" in readme and "summer scenario" in readme.lower()
+    assert "August 2024" in readme and "19 complete days" in readme
+    assert f'{d["meta"]["backtest"]["complete_days_mape"]:.0%}' in readme
 
 def test_readme_recommendation_table_matches_csv():
     rec = pd.read_csv("data/recommendations.csv")

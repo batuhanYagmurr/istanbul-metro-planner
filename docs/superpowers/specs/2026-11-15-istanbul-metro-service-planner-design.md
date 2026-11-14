@@ -45,7 +45,7 @@ Kaynak: İBB Açık Veri Portalı (`data.ibb.gov.tr`, CKAN API, İBB Açık Veri
 | `rayli-sistemler-hat-bazli-sefer-sayilari` | Hat başına **aylık** sefer sayısı, 2017'den itibaren (XLSX, tarih Excel seri numarası). Hatlar: M1–M9, T1, T3, T4, T5, F1, F4, TF1, TF2 | Saatlik sefer verisi yok. |
 | `rayli-sistemler-istasyon-bazli-yolcu-ve-yolculuk-sayilari` | 2021–2025, istasyon × gün, koordinatlı (`;` ayraçlı, koordinat biçimi bozuk) | İsteğe bağlı, aşağıya bakın. |
 
-**Kullanılacak dönem (benim kararım):** saatlik verinin raylı kısmı, Ocak 2023 – Ekim 2024
+**Kullanılacak dönem:** aşağıdaki "Dönem kararı" bölümü bunun yerine geçer. İlk hali (benim kararım): saatlik verinin raylı kısmı, Ocak 2023 – Ekim 2024
 (22 ay; pandemi dönemi dışarıda, bir tam yıl mevsimsellik + sınama dönemi). İndirme boyutu sorun
 olursa builder dönemi Ocak 2024 – Ekim 2024'e kısaltabilir ve bunu README'de belirtir.
 
@@ -85,11 +85,11 @@ olursa builder dönemi Ocak 2024 – Ekim 2024'e kısaltabilir ve bunu README'de
 - Tahmin: `yolcu(istasyon, gün tipi, saat) = istasyonun son N haftadaki tipik profili × özel gün katsayısı`.
 - Grupların işi burada: özel günler az olduğu için katsayılar **istasyon yerine grup düzeyinde**
   tahmin edilir (az verisi olan bir istasyon, kendi birkaç özel gününden değil grubunun ortak davranışından öğrenir).
-- Sınama: son 8 hafta (Eylül–Ekim 2024) gizlenir. Üç yöntem karşılaştırılır: (a) özel gün
+- Sınama (dönem kararıyla güncellendi, aşağıya bakın): ana sınama Nisan–Mayıs 2024, ek sınama Haziran–Temmuz 2024; her biri 8 hafta gizlenir. Üç yöntem karşılaştırılır: (a) özel gün
   katsayısı yok, (b) istasyon bazlı katsayı, (c) grup bazlı katsayı. Ölçüt: istasyon-gün ve
   hat-saat dilimi düzeyinde ortalama mutlak yüzde hata. Hangisi kazanırsa o kullanılır ve sonuç
   dürüstçe yazılır (gruplar yardımcı olmazsa bu da bir bulgudur).
-- Tahmin ufku: verinin bittiği yerden sonraki 4 hafta (Kasım 2024). README'de verinin Ekim 2024'te
+- Tahmin ufku (dönem kararıyla güncellendi): Ağustos 2024, "yaz senaryosu". İlk hali: verinin bittiği yerden sonraki 4 hafta (Kasım 2024). README'de verinin Ekim 2024'te
   bittiği açıkça yazılır.
 
 ### 4. Öneri kartı
@@ -167,20 +167,32 @@ Araçlar (benim kararım): Python, DuckDB, pandas, scikit-learn, Streamlit, Alta
   duyarlılık parametresi: hafta sonu sefer oranı 0.6x–1.0x. Bir hattın 18 hücresi (3 gün tipi ×
   6 dilim) **birlikte** sıralanır; "sağlam" etiketi için öneri hem zirve (1.0x–2.0x) hem hafta sonu
   (0.6x–1.0x) aralığının tamamında aynı kalmalıdır.
-- **Ölçülen (varsayımsız) bulgu:** hat başına aylık `biniş / sefer` eğilimi, Ocak 2023 – Ekim 2024.
+- **Ölçülen (varsayımsız) bulgu:** hat başına aylık `biniş / sefer` eğilimi, Ocak 2023 – Temmuz 2024.
   Bu, README'nin ve panelin gerçek veriye dayanan ana göstergesidir; saat dilimi kartı onun üstüne
   kurulan senaryodur.
-- **Sınama iki parçalı:** (1) genel hata için son 8 hafta (Eylül–Ekim 2024); (2) özel gün
+- **Sınama iki parçalı:** (1) genel hata için Nisan–Mayıs 2024 (ana) ve Haziran–Temmuz 2024 (ek); (2) özel gün
   katsayılarını ayırt etmek için 2024'ün özel günleri (Ramazan ve Kurban bayramları, resmî
   tatiller, yarıyıl ve yaz tatili başlangıcı) tek tek gizlenip öncesindeki veriden tahmin edilir.
   Üç yöntemin karşılaştırması (2) üzerinden yapılır. Sonuç belirsiz çıkarsa öyle raporlanır.
 - **Yeni açılan / uzatılan hatlar ve istasyonlar:** dönem içinde 12 aydan az verisi olanlar
   gruplamaya, katsayı tahminine ve öneri kartına girmez; yalnızca talep görünümünde yer alır.
 - **Sefer ayı:** sefer dosyası Ocak 2017'den başlayan 108 aylık satır içeriyor (Aralık 2025'e
-  kadar görünüyor; builder doğrular). Kasım 2024 önerisi için Kasım 2024'ün gerçek sefer sayısı
+  kadar görünüyor; builder doğrular). Ağustos 2024 önerisi için Ağustos 2024'ün gerçek sefer sayısı
   kullanılır; bir hat için yoksa son mevcut ay kullanılır ve işaretlenir.
 - **Repo kalıbı:** README'de bulgular + tablo, tek notebook, `model.py` + `data.json` ile çalışan
   panel, duyarlılık testi.
+
+## Dönem kararı (Batuhan, 2026-11-15; önceki dönem tanımlarının yerine geçer)
+
+Görev 2'de kaynak verinin Ağustos 2024'ten itibaren eksik olduğu görüldü (ayrıntı `docs/data-notes.md`).
+Batuhan'ın kararı:
+
+- **Analiz dönemi:** Ocak 2023 – Temmuz 2024 (19 tam ay). Gruplar, katsayılar ve profiller yalnızca bu dönemden.
+- **Ana sınama:** Nisan–Mayıs 2024 (okul dönemi), 8 hafta.
+- **Ek sınama:** Haziran–Temmuz 2024, 8 hafta.
+- **Tahmin:** Ağustos 2024. README ve panelde "yaz senaryosu" (summer scenario) olarak adlandırılır.
+- **Gerçekle karşılaştırma:** Ağustos–Ekim 2024'teki 19 tam gün, Temmuz 2024 sonuna kadarki veriyle yapılan tahminle karşılaştırılır ve hata raporlanır.
+- **Sınırlar:** kırılma kaynak verinin kendisinde olduğu için README'deki "What we can't measure" bölümünde yazılır.
 
 ## Sınırlar (README'de "What we can't measure" başlığıyla yazılacak)
 
@@ -188,7 +200,7 @@ Araçlar (benim kararım): Python, DuckDB, pandas, scikit-learn, Streamlit, Alta
 - Veri **binişleri** sayar, trendeki doluluğu değil; inişler ve yolculuk uzunluğu bilinmiyor.
 - Tren kapasitesi (vagon sayısı) hatlar arasında farklı ve veride yok; bu yüzden hatlar birbiriyle
   değil, her hat kendi saat dilimleriyle karşılaştırılır.
-- Veri Ekim 2024'te bitiyor.
+- Kaynak veri Ağustos 2024'ten itibaren eksik: Ağustos–Ekim 2024'ün 79 gününden yalnızca 19'u tam, Ekim dosyası 18'inde bitiyor, Kasım–Aralık dosyaları boş. Eksiklik İBB dosyalarının kendisinde (otobüs ve vapur için de aynı), bizim işlememizden değil. Bu yüzden analiz Temmuz 2024'te bitiyor ve Ağustos–Ekim aylık toplamları kullanılmıyor.
 
 ## Builder'a bırakılanlar
 
@@ -196,7 +208,7 @@ Araçlar (benim kararım): Python, DuckDB, pandas, scikit-learn, Streamlit, Alta
 - Tipik profil için N hafta, "ekle / azalt" eşikleri.
 - `product_kind` değerlerinin (INDIRIMLI1, INDIRIMLI2, UCRETSIZ…) hangisinin öğrenci olduğunun
   doğrulanması; doğrulanamazsa özellik "indirimli pay" olarak kalır.
-- İsteğe bağlı ek: istasyon-gün veri seti (2025'e kadar) ile Kasım 2024 sonrası tahminin gerçek
+- İsteğe bağlı ek: istasyon-gün veri seti (2025'e kadar) ile Ağustos 2024 sonrası tahminin gerçek
   veriye karşı sınanması. İstasyon adları iki veri setinde kolayca eşleşirse yapılır, yoksa atlanır.
 
 ## Yayın
