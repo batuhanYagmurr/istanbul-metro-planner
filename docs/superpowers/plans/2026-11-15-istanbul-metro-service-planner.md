@@ -16,6 +16,7 @@
 - Demand measure is `number_of_passage` (boardings). `number_of_passenger` is kept only as auxiliary.
 - Analysis unit is the station-line pair (`line_name` + `station_poi_desc_cd`).
 - Period: rail rows (`road_type = 'RAYLI'`) of the hourly dataset, 2023-01 to 2024-10. If download size is a problem, shorten to 2024-01 to 2024-10 and say so in the README.
+- Download budget (checked 2026-11-15 from catalogue sizes): 2023-01..2024-10 is 31.5 GB in total (2024 alone 12.5 GB); files are 1.3–1.8 GB each through 2024-07, then 0.27–0.39 GB for 2024-08..10. Free disk was 686 GB. Only one raw CSV may exist on disk at a time.
 - Forecast horizon: 2024-11-01 to 2024-11-28. The README states that the data ends in October 2024.
 - No ML models beyond k-means (discovery) and a shallow decision tree (rule extraction). No LightGBM, Prophet, deep learning.
 - Raw CSVs are never kept or committed. `data/raw/` is git-ignored. The panel runs with only `app/data.json`.
@@ -228,6 +229,11 @@ Run: `.venv/bin/pytest tests/test_calendar.py -v` — Expected: 3 passed.
 
 Resource URLs come from the CKAN API (`https://data.ibb.gov.tr/api/3/action/package_show?id=hourly-public-transport-data-set`), matched by the file name `hourly_transportation_YYYYMM.csv`; trips from `id=rayli-sistemler-hat-bazli-sefer-sayilari`.
 
+Known catalogue quirks (verified 2026-11-15) the script must handle:
+- The resource titled "Aralık 2024" has the file name `hourly_transportation_202512.csv` (year mismatch). It and "Kasım 2024" (`202411`) are header-only, 187 bytes. Match on the file-name `YYYYMM`, accept only months inside `--start..--end`, and after aggregation assert that every date in the output falls in the month the file name claims; fail loudly otherwise. Add a test for that assertion in `tests/test_prep.py` (a fixture row dated outside the expected month → `ValueError`), which means `aggregate_rail_month` takes an extra `expected_month: str | None = None` argument (`"YYYY-MM"`).
+- The server may ignore HTTP range requests and send the whole file; never rely on partial downloads for sampling.
+- Downloads must be resumable (`curl -C -` or equivalent) and retried, with a generic User-Agent.
+
 Run: `.venv/bin/python scripts/build_data.py --start 2024-10 --end 2024-10`
 Expected: prints rows written; `data/raw/rail_hourly/202410.parquet` and `data/trips_monthly.csv` exist.
 
@@ -239,8 +245,10 @@ Expected: identical totals. Record both numbers in `docs/data-notes.md`.
 
 - [ ] **Step 7: Build the full period**
 
-Run: `.venv/bin/python scripts/build_data.py --start 2023-01 --end 2024-10`
-Expected: 22 parquet files. If total download is impractical, build 2024-01..2024-10 and record the decision in `docs/data-notes.md`.
+Before starting, re-check free disk (`df -h .`) and re-read the catalogue sizes; stop and report if free space is under 10 GB.
+
+Run in the background, newest month first, so a usable 2024 set exists early: `.venv/bin/python scripts/build_data.py --start 2023-01 --end 2024-10 --newest-first`
+Expected: 22 parquet files (31.5 GB downloaded in total, one file at a time; expect hours, not minutes). If the download is impractical, keep 2024-01..2024-10 (12.5 GB) and record the decision in `docs/data-notes.md` and the README.
 
 - [ ] **Step 8: Write `docs/data-notes.md` from the real data**
 
@@ -251,6 +259,9 @@ Answer each with a number or a short table, since later tasks depend on them:
 4. Station-lines with fewer than 12 months of data (these are demand-view only).
 5. Any non-ASCII or inconsistently spelled station names; if found, add a normalization map to `metro/prep.py` with a test.
 6. Share of boardings in hours 0–5.
+7. The file-size break: 2024-08..10 files are about a sixth of the size of earlier months. Compare rail rows per month, rail boardings per month and per line, and distinct values of each text column for 2024-07 vs 2024-08. If boardings per line are continuous, the change is only in row granularity and nothing else is needed. If totals jump, stop and report before Task 3: the backtest window (Sep–Oct 2024) sits entirely after the break.
+
+Already verified on the full October 2024 file (2026-11-15), to be confirmed across all months: `road_type` has exactly three values (`OTOYOL`, `RAYLI`, `DENİZ`); every row has 13 fields; rail `line_name` values are `M1 M2 M3 M4 M5 M6 M7 M8 M9 T1 T3 T4 T5 F1 F4 TF1 TF2` plus `MARMARAY`, `TCDD-GH`, `TCDD-SK`, `TCDD-HB`, `TUNEL`, `NOSTRAM`; no rail-like code appears under another `road_type`. The trips file has 108 monthly rows from 2017-01 to 2025-12 with the 17 lines `M1`–`M9, T1, T3, T4, T5, F1, F4, TF1, TF2`; all 17 have values for 2024-10 and 2024-11 (in 2017-01 only `M1 M2 M3 M4 M6 T1 T4 F1`). So the six other codes are demand-view only, and the November 2024 trips fallback is not expected to trigger on real data.
 
 - [ ] **Step 9: Commit**
 
@@ -634,7 +645,7 @@ git commit -m "feat: one-page Streamlit panel"
 
 Notebook sections (each calls `metro/` functions; no logic re-implemented in cells): 1 Question and data; 2 Data prep (shows `sql/rail_hourly.sql`, monthly totals); 3 Measured indicator: boardings per trip by line and month; 4 Station features and groups (cluster means, rule, agreement, examples); 5 Forecast method; 6 Backtests (recent window; special days by level — state plainly whether groups helped); 7 Recommendation card at base assumptions; 8 Sensitivity (how many labels are robust); 9 What we can't measure.
 
-README sections: title and one-line question; live-app placeholder line ("Live app: not deployed yet"); What we found (3–5 numbered findings with numbers); Recommendation table (lines × the cells labelled add/reduce at base assumptions, robust ones marked); How it works; What we can't measure (the four limits); What's in this repo; Run it yourself (`pip install -r requirements-dev.txt`, `python scripts/build_data.py`, `python scripts/make_app_data.py`, `streamlit run app/streamlit_app.py`; note the panel alone needs only `app/requirements.txt`); Data source and licence (IBB Open Data Portal).
+README sections: title and one-line question; live-app placeholder line ("Live app: not deployed yet"); What we found (3–5 numbered findings with numbers); Recommendation table (lines × the cells labelled add/reduce at base assumptions, robust ones marked); How it works; What we can't measure (the four limits); What's in this repo; Run it yourself (`pip install -r requirements-dev.txt`, `python scripts/build_data.py`, `python scripts/make_app_data.py`, `streamlit run app/streamlit_app.py`; note the panel alone needs only `app/requirements.txt`); Data source and licence (IBB Open Data Portal); a short "Data notes" paragraph stating that the portal's "Aralık 2024" file is named `202512` and, like November 2024, is empty, so the data ends in October 2024, and that monthly files shrink sharply from August 2024 (with what Task 2 found about it).
 
 - [ ] **Step 1: Write the failing README consistency test**
 

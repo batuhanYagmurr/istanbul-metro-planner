@@ -41,7 +41,7 @@ Kaynak: İBB Açık Veri Portalı (`data.ibb.gov.tr`, CKAN API, İBB Açık Veri
 
 | Veri seti (CKAN id) | İçerik | Not |
 |---|---|---|
-| `hourly-public-transport-data-set` | Ocak 2020 – Ekim 2024, aylık CSV. Sütunlar: `transition_date, transition_hour, transport_type_id, road_type, line, transfer_type, number_of_passage, number_of_passenger, product_kind, transaction_type_desc, town, line_name, station_poi_desc_cd` | Dosya başına 200 MB – 1 GB. Raylı satırlar `road_type = 'RAYLI'`; `line_name` hat kodu (M2, T4…), `station_poi_desc_cd` istasyon. Kasım/Aralık 2024 dosyaları boş. |
+| `hourly-public-transport-data-set` | Ocak 2020 – Ekim 2024, aylık CSV. Sütunlar: `transition_date, transition_hour, transport_type_id, road_type, line, transfer_type, number_of_passage, number_of_passenger, product_kind, transaction_type_desc, town, line_name, station_poi_desc_cd` | Dosya başına 1,3–1,8 GB (Ağustos–Ekim 2024: 0,27–0,39 GB); Ocak 2023 – Ekim 2024 toplamı 31,5 GB. "Aralık 2024" dosyasının adı `202512`. Raylı satırlar `road_type = 'RAYLI'`; `line_name` hat kodu (M2, T4…), `station_poi_desc_cd` istasyon. Kasım/Aralık 2024 dosyaları boş. |
 | `rayli-sistemler-hat-bazli-sefer-sayilari` | Hat başına **aylık** sefer sayısı, 2017'den itibaren (XLSX, tarih Excel seri numarası). Hatlar: M1–M9, T1, T3, T4, T5, F1, F4, TF1, TF2 | Saatlik sefer verisi yok. |
 | `rayli-sistemler-istasyon-bazli-yolcu-ve-yolculuk-sayilari` | 2021–2025, istasyon × gün, koordinatlı (`;` ayraçlı, koordinat biçimi bozuk) | İsteğe bağlı, aşağıya bakın. |
 
