@@ -77,3 +77,28 @@ def load_trips(xlsx_path: Path) -> pd.DataFrame:
             if line and value not in (None, ""):
                 records.append({"month": month, "line": str(line).strip(), "trips": float(value)})
     return pd.DataFrame(records, columns=["month", "line", "trips"])
+
+
+def _month_range(start: str, end: str) -> list[str]:
+    return [p.strftime("%Y-%m") for p in pd.period_range(start, end, freq="M")]
+
+
+def select_resources(resources: list[dict], start: str, end: str, newest_first: bool = False) -> list[tuple[str, str]]:
+    """Pick (month, url) for every month in start..end, matching on the file name.
+
+    Titles are ignored on purpose: the portal's "Aralık 2024" resource is the
+    file hourly_transportation_202512.csv. A month in the range with no file raises.
+    """
+    import re
+
+    by_month = {}
+    for res in resources:
+        m = re.search(r"hourly_transportation_(\d{4})(\d{2})\.csv$", res.get("url", ""))
+        if m:
+            by_month[f"{m.group(1)}-{m.group(2)}"] = res["url"]
+    wanted = _month_range(start, end)
+    missing = [m for m in wanted if m not in by_month]
+    if missing:
+        raise ValueError(f"no file on the portal for: {', '.join(missing)}")
+    picked = [(m, by_month[m]) for m in wanted]
+    return picked[::-1] if newest_first else picked
