@@ -102,3 +102,21 @@ def select_resources(resources: list[dict], start: str, end: str, newest_first: 
         raise ValueError(f"no file on the portal for: {', '.join(missing)}")
     picked = [(m, by_month[m]) for m in wanted]
     return picked[::-1] if newest_first else picked
+
+
+ANALYSIS_END = "2024-07-31"
+MIN_DAY_BOARDINGS = 100_000  # complete days have 1.2-3.8 million rail boardings, incomplete ones at most 7,695
+STRAY_LINES = {"34A"}
+
+
+def complete_days(hourly: pd.DataFrame) -> pd.DatetimeIndex:
+    """Dates whose total rail boardings reach MIN_DAY_BOARDINGS (the source files have near-empty days from 2024-08)."""
+    totals = hourly.groupby("date")["boardings"].sum()
+    return pd.DatetimeIndex(totals[totals >= MIN_DAY_BOARDINGS].index).sort_values()
+
+
+def analysis_hourly(hourly: pd.DataFrame) -> pd.DataFrame:
+    """Rows usable for analysis: complete days up to ANALYSIS_END, stray line codes removed."""
+    keep = hourly["date"].isin(complete_days(hourly)) & (hourly["date"] <= pd.Timestamp(ANALYSIS_END))
+    keep &= ~hourly["line"].isin(STRAY_LINES)
+    return hourly[keep].reset_index(drop=True)

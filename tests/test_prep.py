@@ -81,3 +81,33 @@ def test_load_trips_long_format(tmp_path):
 def test_load_trips_accepts_excel_serial_dates(tmp_path):
     path = _xlsx(tmp_path, [45566, 45597])  # 2024-10-01, 2024-11-01
     assert load_trips(path).to_dict("records") == EXPECTED_TRIPS
+
+
+def _frame(rows):
+    import pandas as pd
+
+    df = pd.DataFrame(rows, columns=["date", "hour", "line", "station", "boardings"])
+    df["date"] = pd.to_datetime(df["date"])
+    for c in ("passengers", "b_full", "b_discount", "b_free", "b_transfer"):
+        df[c] = 0
+    return df
+
+
+def test_complete_days_drops_thin_days():
+    from metro.prep import complete_days
+
+    df = _frame([("2024-07-01", 8, "M2", "A", 1_200_000), ("2024-08-02", 8, "M2", "A", 7_695)])
+    assert [d.strftime("%Y-%m-%d") for d in complete_days(df)] == ["2024-07-01"]
+
+
+def test_analysis_hourly_stops_at_july_2024():
+    from metro.prep import analysis_hourly
+
+    df = _frame([
+        ("2024-07-31", 8, "M2", "A", 1_500_000),
+        ("2024-08-25", 8, "M2", "A", 1_500_000),   # complete, but after the analysis window
+        ("2024-07-31", 9, "34A", "X", 36),          # stray line code
+        ("2024-07-30", 8, "M2", "A", 500),          # thin day
+    ])
+    out = analysis_hourly(df)
+    assert out.date.dt.strftime("%Y-%m-%d").tolist() == ["2024-07-31"] and out.line.tolist() == ["M2"]
