@@ -4,12 +4,13 @@ import pandas as pd
 COLS = ["date", "hour", "line", "station", "boardings", "passengers", "b_full", "b_discount", "b_free", "b_transfer"]
 
 
-def calendar(start="2023-01-01", end="2024-07-31", public_holidays=()):
+def calendar(start="2023-01-01", end="2024-07-31", public_holidays=(), religious=()):
     cal = pd.DataFrame({"date": pd.date_range(start, end, freq="D")})
     dow = cal.date.dt.day_of_week
     cal["day_type"] = dow.map(lambda d: "saturday" if d == 5 else "sunday" if d == 6 else "weekday")
     cal["special"] = "none"
     cal.loc[cal.date.isin(pd.to_datetime(list(public_holidays))), "special"] = "public_holiday"
+    cal.loc[cal.date.isin(pd.to_datetime(list(religious))), "special"] = "religious_holiday"
     cal["label"] = ""
     return cal
 
@@ -27,3 +28,11 @@ def hourly(cal, line, station, weekday=None, weekend=None, start=None, end=None,
         for h, b in prof.items():
             rows.append((d, h, line, station, b, b, b * (1 - discount), b * discount, 0, b * transfer))
     return pd.DataFrame(rows, columns=COLS)
+
+
+def set_day(h, line, station, date, total, hour=8):
+    """Replace one unit's boardings on one date by a single row with `total` boardings."""
+    d = pd.Timestamp(date)
+    h = h[~((h.line == line) & (h.station == station) & (h.date == d))]
+    row = pd.DataFrame([(d, hour, line, station, total, total, total, 0, 0, 0)], columns=COLS)
+    return pd.concat([h, row], ignore_index=True)
