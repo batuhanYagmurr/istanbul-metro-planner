@@ -1,6 +1,9 @@
 """Text and small calculations for the panel, kept out of streamlit_app.py so they can be tested."""
 from __future__ import annotations
 
+import altair as alt
+import pandas as pd
+
 import model
 
 CELL_TEXT = {"add": "Load per trip high in this band",
@@ -85,3 +88,23 @@ def top_stations(line: dict, n: int = TOP_STATIONS) -> list[dict]:
     """The line's n busiest station units, busiest first, with a group name for every one."""
     rows = sorted(line["stations"], key=lambda s: s["boardings_day"], reverse=True)[:n]
     return [{**s, "group": s["group"] or "Too new to group"} for s in rows]
+
+
+def monthly_trend_chart(line: dict) -> alt.Chart:
+    """Boardings per trip by month (boardings per day for lines without trip data), one axis label per month."""
+    mo = pd.DataFrame(line["monthly"])
+    if line["has_trips"]:
+        mo = mo.dropna(subset=["trips"]).assign(value=lambda d: d["boardings"] / d["trips"])
+        ytitle = "Boardings per trip"
+    else:
+        mo = mo.assign(value=lambda d: d["boardings"] / pd.to_datetime(d["month"]).dt.days_in_month)
+        ytitle = "Boardings per day (no trip data published)"
+    # local-time timestamps (no "Z") so the points sit exactly on the local month-start ticks
+    mo = mo.assign(month=mo["month"] + "-01T00:00:00")[["month", "value"]]
+    ticks = [alt.DateTime(year=int(m[:4]), month=int(m[5:7]), date=1) for m in mo["month"]]
+    return alt.Chart(mo).mark_line(point=True).encode(
+        x=alt.X("month:T", title=None,
+                axis=alt.Axis(values=ticks, format="%b %Y", labelOverlap=False, labelAngle=-45, grid=False)),
+        y=alt.Y("value:Q", title=ytitle, scale=alt.Scale(zero=False)),
+        tooltip=[alt.Tooltip("month:T", title="Month", format="%b %Y"),
+                 alt.Tooltip("value:Q", title=ytitle, format=",.0f")])

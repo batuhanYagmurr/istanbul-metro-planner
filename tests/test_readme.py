@@ -47,8 +47,10 @@ def test_readme_recommendation_table_matches_csv():
 def test_required_sections_links_and_placeholders():
     for s in ("## What we found", "## How it works", "## Backtests: before and after the review",
               "## Groups do not improve the forecast", "## What we can't measure", "## Run it yourself",
-              "docs/backtests/", "Live app: not deployed yet", "Screenshot placeholder",
-              "202512", "M9 Olimpiyat Doğu", "not occupancy"):
+              "docs/backtests/", "Live app: not deployed yet", "docs/panel1.png", "docs/panel2.png", "docs/panel3.png",
+              "202512", "M9 Olimpiyat Doğu", "not occupancy",
+              "has not been checked", "Kurban Bayramı", "chosen on the 2024 special-day backtest",
+              "separate window", "whole analysis period", "**Scaling.**"):
         assert s in README, s
 
 

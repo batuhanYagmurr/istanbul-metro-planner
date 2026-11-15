@@ -113,3 +113,34 @@ def test_committed_data_json_matches_schema():
     assert {"meta", "groups", "lines"} <= set(d) and any(l["has_trips"] for l in d["lines"].values())
     assert 0 < d["meta"]["backtest"]["station_day_wape"] < 1
     assert path.stat().st_size < 1_000_000
+
+
+# --- review: how the special-day factor level is chosen -----------------------------------------
+
+from metro.app_data import choose_level  # noqa: E402
+
+
+def _special(scores, n_days=None):
+    n_days = n_days or {"public_holiday": 5, "religious_holiday": 9, "school_break": 40}
+    return pd.DataFrame([{"special": s, "level": lv, "station_day_wape": w, "station_day_mape": w, "n_days": n_days[s]}
+                         for s, by_level in scores.items() for lv, w in by_level.items()])
+
+
+MAIN = {"none": {"station_day_wape": 0.30}, "group": {"station_day_wape": 0.20}, "station": {"station_day_wape": 0.10}}
+
+
+def test_choose_level_picks_lowest_days_weighted_special_day_error():
+    sp = _special({"public_holiday": {"none": 0.1, "group": 0.9, "station": 0.9},       # 5 days favour none
+                   "school_break": {"none": 0.5, "group": 0.2, "station": 0.3}})      # 40 days favour group
+    assert choose_level(sp, MAIN) == "group"
+
+
+def test_choose_level_tie_goes_to_the_simpler_level():
+    assert choose_level(_special({"school_break": {"none": 0.2, "group": 0.2, "station": 0.2}}), MAIN) == "none"
+    assert choose_level(_special({"school_break": {"none": 0.3, "group": 0.2, "station": 0.2}}), MAIN) == "group"
+
+
+def test_choose_level_without_special_days_falls_back_to_main_window():
+    assert choose_level(_special({}), MAIN) == "station"
+    tie = {lv: {"station_day_wape": 0.1} for lv in ("none", "group", "station")}
+    assert choose_level(_special({}), tie) == "none"

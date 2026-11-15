@@ -108,3 +108,37 @@ def test_zero_trips_or_zero_boardings_do_not_crash():
 def test_slider_extremes_are_accepted():
     for pm, wm in [(1.0, 0.6), (2.0, 1.0), (2.0, 0.6)]:
         assert len(trips_per_cell(5040, DAYS, pm, wm)) == 18
+
+
+# --- review: threshold edges and the weekend multiplier in robust() ---------------------------
+
+def _boundary_loads(high, low):
+    """18 cells with equal trips; the line mean is exactly 1600 when high=2000 and low=960."""
+    trips = {c: 10.0 for c in CELLS}
+    load = {c: 1615.0 for c in CELLS}
+    load[CELLS[0]], load[CELLS[1]] = high, low
+    return load, trips
+
+
+def test_recommend_thresholds_are_inclusive_at_1_25_and_0_6():
+    load, trips = _boundary_loads(2000.0, 960.0)          # exactly 1.25x and 0.6x the mean of 1600
+    labels = recommend(load, trips)
+    assert labels[CELLS[0]] == "add" and labels[CELLS[1]] == "reduce"
+
+
+def test_recommend_just_inside_the_thresholds_is_keep():
+    load, trips = _boundary_loads(1999.0, 961.0)
+    ref = sum(load.values()) / len(load)
+    assert load[CELLS[0]] < 1.25 * ref and load[CELLS[1]] > 0.6 * ref
+    labels = recommend(load, trips)
+    assert labels[CELLS[0]] == "keep" and labels[CELLS[1]] == "keep"
+
+
+def test_robust_also_varies_the_weekend_multiplier():
+    # Saturday midday 10% busier than its share: its label changes only as weekend service changes
+    t = trips_per_cell(5040, DAYS)
+    b = {c: v * 100 * (1.1 if c == ("saturday", "midday") else 1.0) for c, v in t.items()}
+    c = ("saturday", "midday")
+    assert robust(b, 5040, DAYS, weekend_grid=(1.0,))[c] is True     # peak multiplier alone: stable
+    assert robust(b, 5040, DAYS, peak_grid=(1.0,))[c] is False       # weekend multiplier alone: changes
+    assert robust(b, 5040, DAYS)[c] is False                          # the default grid includes it

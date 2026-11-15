@@ -100,9 +100,11 @@ olursa builder dönemi Ocak 2024 – Ekim 2024'e kısaltabilir ve bunu README'de
   Aylık sefer sayısı gerçek veriden gelir; saat dilimlerine dağıtımı **varsayımdır**.
   Temel varsayım: seferler işletme saatlerine eşit dağılır. Duyarlılık: zirve saatlerde 1.0x–2.0x
   daha sık sefer. Panelde bu bir kaydırıcıdır; bir okumanın varsayıma ne kadar bağlı olduğunu gösteren duyarlılık testi.
-- Öneri, **hattın kendi içinde** göreli yüke dayanır: en yüklü dilimler "sefer ekle", en boş
-  dilimler "azaltılabilir", gerisi "koru". Bir öneri ancak duyarlılık aralığının tamamında aynı
-  kalıyorsa "sağlam" diye işaretlenir.
+- Öneri, **hattın kendi içinde** göreli yüke dayanır. Kart eylem değil yük dili kullanır (kullanıcı
+  kararı, 2026-11-15): en yüklü dilimler "Load per trip high in this band", en boş dilimler
+  "Load per trip low in this band", gerisi "Near the line's average". "Sefer ekle / azalt" gibi
+  ifadeler kullanılmaz. Bir okuma ancak duyarlılık aralığının tamamında aynı kalıyorsa "sağlam"
+  (robust) diye işaretlenir.
 - Yalnızca hem yolcu hem sefer verisi olan hatlar öneri alır; diğerleri (ör. Marmaray) yalnızca
   talep görünümünde yer alır.
 
@@ -115,13 +117,13 @@ olursa builder dönemi Ocak 2024 – Ekim 2024'e kısaltabilir ve bunu README'de
 │  Riders/day   Trips/day   Boardings/trip   Forecast error (backtest)  │
 │   412k          540          763               11%                    │
 ├───────────────────────────────┬──────────────────────────────────────┤
-│ Recommendation card           │ Hourly demand vs assumed service     │
-│ Early    ░ keep               │  (line chart, 24h, peaks shaded)     │
-│ AM peak  █ ADD   (robust)     │                                      │
-│ Midday   ░ keep               │                                      │
-│ PM peak  █ ADD                │                                      │
-│ Evening  ░ keep               │                                      │
-│ Night    ▒ can reduce         │                                      │
+│ Scenario card (load per trip) │ Hourly demand vs assumed service     │
+│ Early    ░ near average       │  (line chart, 24h, peaks shaded)     │
+│ AM peak  █ HIGH  (robust)     │                                      │
+│ Midday   ░ near average       │                                      │
+│ PM peak  █ HIGH               │                                      │
+│ Evening  ░ near average       │                                      │
+│ Night    ▒ LOW                │                                      │
 ├───────────────────────────────┼──────────────────────────────────────┤
 │ Station groups on this line   │ Next 4 weeks: forecast & special days│
 │ (bar per station, coloured    │  (daily bars, holidays marked)       │

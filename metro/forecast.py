@@ -19,7 +19,10 @@ HOUR_TO_BAND = {h: b for b, hs in BANDS.items() for h in hs}
 BASELINE_DAYS = 28
 # A normal day whose boardings fall below this share of the unit's median for that day type
 # (computed only from earlier days) is treated as a closed-station day and left out of the
-# profile and the special-day baseline. Real example: 1 May 2024 at Taksim, Sishane, Kabatas.
+# profile and the special-day baseline. Real examples are long closures such as M7 Veysel Karani
+# Dogu or T4 Bastabya (see docs/backtests/README.md). 1 May (Taksim, Sishane, Kabatas shut) is NOT
+# one: it is a public holiday, so it never enters a profile or baseline in the first place; it is
+# only scored, which is why it inflates the unweighted MAPE.
 CLOSED_THRESHOLD = 0.2
 
 

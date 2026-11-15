@@ -56,17 +56,7 @@ else:
     for c, label in ((c2, "Trips / day"), (c3, "Boardings / trip"), (c4, "Boardings / trip vs Jul 2023")):
         c.metric(label, "n/a")
 
-mo = pd.DataFrame(L["monthly"])
-if L["has_trips"]:
-    mo = mo.dropna(subset=["trips"]).assign(value=lambda d: d["boardings"] / d["trips"])
-    ytitle = "Boardings per trip"
-else:
-    mo = mo.assign(value=lambda d: d["boardings"] / pd.to_datetime(d["month"]).dt.days_in_month)
-    ytitle = "Boardings per day (no trip data published)"
-mo["month"] = pd.to_datetime(mo["month"])
-st.altair_chart(alt.Chart(mo).mark_line(point=True).encode(
-    x=alt.X("month:T", title=None), y=alt.Y("value:Q", title=ytitle, scale=alt.Scale(zero=False)),
-    tooltip=[alt.Tooltip("month:T", format="%b %Y"), alt.Tooltip("value:Q", format=",.0f")]), width="stretch")
+st.altair_chart(view.monthly_trend_chart(L), width="stretch")
 st.caption("Boardings per trip = boardings at gates ÷ trips run. It is not occupancy: exits, trip length and train "
            "size are not in the data, so compare a line with itself over time, not with other lines.")
 

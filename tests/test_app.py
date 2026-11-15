@@ -130,3 +130,26 @@ def test_faded_cells_keep_full_text_contrast():
     weak = css[css.index("td.weak"):].split("}")[0]
     assert "opacity" not in css          # opacity also fades the text
     assert "dashed" in weak
+
+
+def test_monthly_trend_axis_has_exactly_one_label_per_month():
+    for name in ("M2", "MARMARAY"):          # with and without trip data
+        line = DATA["lines"][name]
+        spec = view.monthly_trend_chart(line).to_dict()
+        x = spec["encoding"]["x"]
+        assert x["type"] == "temporal"
+        axis = x["axis"]
+        assert axis["format"] == "%b %Y"
+        assert axis["labelOverlap"] is False         # no label silently dropped
+        ticks = [(v["year"], v["month"], v["date"]) for v in axis["values"]]
+        months = [r["month"] for r in spec_rows(spec)]
+        assert ticks == [(int(m[:4]), int(m[5:7]), 1) for m in months]   # each month start, nothing between
+        assert len(ticks) == len(set(ticks))
+
+
+def spec_rows(spec):
+    """The chart's data rows, whether inlined under 'data' or under 'datasets'."""
+    data = spec.get("data", {})
+    if "values" in data:
+        return data["values"]
+    return spec["datasets"][data["name"]]

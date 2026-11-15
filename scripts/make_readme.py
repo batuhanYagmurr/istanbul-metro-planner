@@ -25,6 +25,7 @@ import pandas as pd  # noqa: E402
 import model  # noqa: E402
 import view  # noqa: E402
 from metro.app_data import EVENT_NAME  # noqa: E402
+from metro.calendar import load_calendar  # noqa: E402
 from metro.features import station_features  # noqa: E402
 from metro.forecast import BASELINE_DAYS, typical_profile  # noqa: E402
 from metro.groups import discover_groups  # noqa: E402
@@ -160,6 +161,10 @@ def values() -> dict:
     v["error_mape"] = p1(bt["station_day_mape"])
     v["error_line_band"] = p1(bt["line_band_wape"])
     v["level_used"] = bt["level_used"]
+    assert v["level_used"] == "station"          # the text says the headline factors do not use the groups
+    v["n_special_days"] = int(pd.DataFrame(bt["special"]).groupby("special").n_days.first().sum())
+    a, b = (pd.Timestamp(x) for x in bt["window"].split(".."))
+    v["main_window"] = f"{a:%-d %B} – {b:%-d %B %Y}"
     v["extra_error"] = p1(bt["extra"][bt["level_used"]]["station_day_wape"])
     sp = pd.DataFrame(bt["special"]).pivot(index="special", columns="level", values="station_day_wape")
     v["rel_station"], v["rel_group"], v["rel_none"] = (p1(sp.at["religious_holiday", k]) for k in ("station", "group", "none"))
@@ -199,6 +204,19 @@ def values() -> dict:
     v["m1_trips"], v["m1_b"], v["m1_bpt"] = p1(-m1["trips"]), p1(-m1["boardings"]), p1(m1["bpt"])
     v["m2_bpt"], v["t1_bpt"] = signed(m2["bpt"]), signed(t1["bpt"])
     v["m1_now"], v["m2_now"] = n(m1["bpt_now"]), n(m2["bpt_now"])
+    big = sorted(ms, key=lambda k: abs(ms[k]["bpt"]), reverse=True)[:3]
+    assert all(ms[k]["boardings"] > ms[k]["trips"] for k in big)     # "driven by boardings" below
+    v["big_moves"] = ", ".join(f"{k} ({signed(ms[k]['bpt'])})" for k in big[:-1]) + f" and {big[-1]} ({signed(ms[big[-1]]['bpt'])})"
+    v["big_boardings"] = ", ".join(signed(ms[k]["boardings"]) for k in big)
+    v["big_trips"] = ", ".join(signed(ms[k]["trips"]) for k in big)
+    cal = load_calendar()
+    jul = cal[cal.date.dt.strftime("%Y-%m").isin(["2023-07", "2024-07"]) & cal.special.isin(["religious_holiday", "public_holiday"])]
+    rel = jul[jul.special == "religious_holiday"]
+    pub = jul[jul.special == "public_holiday"]
+    assert len(rel) == 1 and rel.date.dt.year.item() == 2023 and len(pub) == 2 and pub.date.dt.day.nunique() == 1
+    v["jul_rel"] = f"{rel.date.item():%-d %B %Y} ({rel.label.item().replace(' day ', ', day ')}, a {rel.day_type.item().title()})"
+    p23, p24 = (pub[pub.date.dt.year == y].iloc[0] for y in (2023, 2024))
+    v["jul_pub"] = (f"{p23.date:%-d July}, a public holiday, fell on a {p23.date:%A} in 2023 and a {p24.date:%A} in 2024")
 
     # card -------------------------------------------------------------------------------------
     v["add_at"], v["reduce_at"] = f"{m['add_at']:g}", f"{m['reduce_at']:g}"
@@ -233,11 +251,18 @@ Using the IBB Open Data Portal's hourly boardings ({data_start} to {data_end}, {
 
 Live app: not deployed yet
 
-> **Screenshot placeholder** — panel screenshot goes here (`docs/panel.png`).
+![Panel, section 1 for line M2: a one-sentence measured finding, four tiles for July 2024 and the monthly boardings-per-trip trend since January 2023](docs/panel1.png)
+*Measured: the selected line's boardings per trip, July 2024 against July 2023, and the month-by-month trend.*
+
+![Panel, section 2 for line M2: the two assumption sliders above a 3 × 6 grid of day types and time bands; robust bands are solid, assumption-dependent ones faded with a dashed border; below, hourly forecast boardings with assumed trips on a separate axis, and August 2024 forecast by day with special days coloured](docs/panel2.png)
+*Scenario: where load per trip is high or low within the line, how it shifts with the sliders, and the August summer forecast.*
+
+![Panel, the busiest M2 station units as horizontal bars of boardings per day, coloured by station group, with every station name shown](docs/panel3.png)
+*The line's busiest stations by daily boardings, coloured by behaviour group.*
 
 ## What we found
 
-1. **Boardings per trip moved both ways between July 2023 and July 2024.** It rose on {n_up} of the {n_measured} lines with trip data. On M1, trips fell {m1_trips} and boardings fell {m1_b}, so each trip carried {m1_bpt} more ({m1_now} boardings per trip). On M2 ({m2_bpt}, now {m2_now}) and T1 ({t1_bpt}) it fell. This is measured and needs no assumption.
+1. **Boardings per trip moved both ways between July 2023 and July 2024.** It rose on {n_up} of the {n_measured} lines with trip data. On M1, trips fell {m1_trips} and boardings fell {m1_b}, so each trip carried {m1_bpt} more ({m1_now} boardings per trip). On M2 ({m2_bpt}, now {m2_now}) and T1 ({t1_bpt}) it fell. This is measured and needs no assumption. The largest moves were {big_moves}, driven by boardings ({big_boardings}) more than by trips ({big_trips}). Whether they come from line extensions or from a break in the data has not been checked. The two months are not like for like: July 2023 includes {jul_rel}, and {jul_pub}.
 2. **Weekday rush-hour readings are not robust.** At base assumptions {n_peak_high} of the {n_peak_cells} weekday peak bands (07–09, 16–19) read "load per trip high", and none of them survives the sensitivity test: once peak hours are assumed to get more trips, the reading goes. Of {n_cells} line-bands, {n_robust} ({robust_pct}) give the same reading under all {n_combos} assumption combinations. The robust "high" readings ({n_rob_high}) are mostly Saturday 16–19 ({sat_pm_lines} lines); the robust "low" readings ({n_rob_low}) are mostly the 06:00 hour ({n_rob_low_early}).
 3. **The forecast misses by {error} of boardings** (April–May 2024, station-day, weighted) and {extra_error} in June–July, when summer starts. Over the {n_complete} complete days after the cut it misses by {complete_wape}. On the {n_aug} complete August days it ran **{aug_over} above** what happened, so the August summer scenario is on the high side.
 4. **Grouping stations does not improve the forecast.** The groups are clear and easy to describe, but station-level special-day factors beat group-level ones in all {n_tests} tests (see below).
@@ -256,7 +281,7 @@ The full card, with boardings and assumed trips per band, is in [`data/recommend
 1. **Data prep (SQL).** Each monthly CSV is reduced with one DuckDB query ([`sql/rail_hourly.sql`](sql/rail_hourly.sql)) to rail boardings per line, station, date and hour, plus fare-type and transfer counts. The raw CSV is then deleted. A day counts as complete when it has at least {min_day} rail boardings.
 2. **Measured indicator.** Monthly boardings ÷ monthly trips per line (trips file: IBB "Rayli sistemler hat bazli sefer sayilari").
 3. **Station groups.** The unit is a line–station pair, i.e. one station's gates for one line. Each unit gets seven features from normal days: weekend/weekday ratio, the weekday shares of 07–09, 10–15, 16–19 and 20–05, and the discounted-fare and transfer shares. K-means on the standardized features chooses k from {k_range} by silhouette score. A cluster under {min_size} stations is an outlier, and units with under {min_months} months of data are not grouped ({n_ungrouped} units). The result is {n_groups} groups plus one outlier. A depth-3 decision tree turns them into a rule that matches the clusters for {rule_agreement} of stations.
-4. **Forecast.** Typical profile × special-day factor. The profile is the mean boardings by day type and hour over the {n_weeks} normal weeks before the cut, leaving out closed-station days (below {closed_pct} of the station's own median for that day type). A factor is the median of actual ÷ the {baseline_days}-day same-day-type average on earlier public holidays, religious holidays and school-break days. Factors were tried per station, per group and not at all; the backtests chose **{level_used}**. Only data before each cut is used: profiles, factors, and the groups too, when they are rebuilt.
+4. **Forecast.** Typical profile × special-day factor. The profile is the mean boardings by day type and hour over the {n_weeks} normal weeks before the cut, leaving out closed-station days (below {closed_pct} of the station's own median for that day type). A factor is the median of actual ÷ the {baseline_days}-day same-day-type average on earlier public holidays, religious holidays and school-break days. Factors were tried per station, per group and not at all. The level was chosen on the 2024 special-day backtest ({n_special_days} days; lowest boardings-weighted error, each category weighted by its number of days), which chose **{level_used}**. The headline {error} comes from a separate window, the {main_window} backtest, scored with that level. Profiles and factors use only data before each cut. Two inputs come from the whole analysis period ({data_start} to {data_end}) instead: which units are eligible (at least {min_months} months of data) and the setting-aside of {event_station} as an outlier, both from the clustering. The {level_used}-level factors behind the headline do not use the groups, and rebuilding the groups from data before each cut moves the error by at most {regroup_max} points (the "groups rebuilt" column below).
 5. **Card.** August forecast boardings per band ÷ an assumed share of the line's monthly trips. The base assumption is the same trips every operating hour, every day. A band at least {add_at}× the line's trip-weighted average reads *load per trip high*; one at most {reduce_at}× reads *low*. The sliders set weekday peak service to {peak_lo}–{peak_hi}× and weekend service to {wk_lo}–{wk_hi}×, and a reading is **robust** if it is the same at all {n_combos} combinations. The thresholds were set before the results were seen and have not been changed.
 
 | Group | Stations | Busiest examples |
@@ -288,6 +313,7 @@ This was a hypothesis, and the backtests rejected it. Special days are rare, so 
 - **The summer factor.** The school-break factor is learned from the first weeks of summer, which were busier than August. On the {n_aug} complete August days the forecast ran {aug_over} high; by October ({n_oct} days) it was within {oct_wape}.
 - **Public holidays.** There is one public-holiday factor, not one per day type. Sunday holidays run above a normal Sunday and weekday holidays below a weekday, so the factor comes out near 1. The 2024 test has few public-holiday days.
 - **Event traffic.** {event_station} depends on events at the Olympic stadium and cannot be forecast from the calendar.
+- **Scaling.** The features are standardized over all eligible units, including the outlier {event_station}, before k-means, so that one station shifts the scaling slightly.
 - **Hours 0–5.** These are in the station-day error but not on the card.
 
 ## What's in this repo
