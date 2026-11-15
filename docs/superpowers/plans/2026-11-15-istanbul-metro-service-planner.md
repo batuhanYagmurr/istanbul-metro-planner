@@ -621,6 +621,9 @@ git commit -m "feat: groups, backtest results, forecast and recommendations as a
 - A short note: boardings per trip is not occupancy (exits, trip length, train size are not in the data).
 - State the summer scenario and that the forecast ran 18.6% above the actual on the 6 complete August days (computed from `meta.backtest.complete_days`, not typed in).
 - The forecast-error figure is `meta.backtest.station_day_wape` (10.7%) in both panel and README, formatted the same way (one decimal); `tests/test_readme.py` and `tests/test_app.py` check the same string.
+- Mockup approved with two changes (2026-11-15): (1) the hourly chart shows assumed trips on their own right-hand axis with a clear label, never rescaled to the boardings scale; (2) the page opens with one measured sentence for the selected line (July 2024 boardings per trip vs July 2023; boardings per day for lines without trips), followed directly by a short sentence that the readings below are scenarios under an assumption. The August note states plainly that the check rests on 6 complete days.
+- Panel text and helpers live in `app/view.py` (tested); `app/streamlit_app.py` only lays out.
+
 Layout (one page, wide, English), following the sketch in spec §5:
 1. Title "Istanbul Metro Service Planner", selectors `Line` (lines with trips first) and `Day type`.
 2. Four tiles: "Boardings / day", "Trips / day", "Boardings / trip", "Forecast error (backtest)" = `meta.backtest.station_day_mape` as a percentage. Tile labels say "boardings", never "riders".
