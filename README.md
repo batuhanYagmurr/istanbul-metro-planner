@@ -118,8 +118,10 @@ This was a hypothesis, and the backtests rejected it. Special days are rare, so 
 
 ## Run it yourself
 
+Needs Python 3.10 or newer (tested on 3.12; current Streamlit releases do not install on 3.9).
+
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 python scripts/build_data.py        # downloads the monthly CSVs one at a time; large and slow
 python scripts/make_app_data.py     # parquet -> app/data.json, data/*.csv
