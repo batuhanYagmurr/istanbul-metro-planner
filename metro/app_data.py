@@ -177,6 +177,8 @@ def build_app_data(hourly, calendar, trips, group_names: dict, groups: pd.Series
                                                 "n_days": int(len(c))} for lv, c in complete.items()},
             },
             "rule_agreement": _r(tree_agree), "rule": rule,
+            "event_units": [{"line": k[0], "station": k[1], "late_share": _r(features.at[k, "late_share"])}
+                            for k in sorted(groups[groups == OUTLIER].index) if k in features.index],
         },
         "groups": [{"name": names[g], "n_stations": int((groups == g).sum()), "examples": examples.get(g, [])}
                    for g in sorted(set(groups.dropna().astype(int)), key=lambda g: (g == OUTLIER, g))],

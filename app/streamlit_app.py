@@ -75,7 +75,7 @@ else:
 mo["month"] = pd.to_datetime(mo["month"])
 st.altair_chart(alt.Chart(mo).mark_line(point=True).encode(
     x=alt.X("month:T", title=None), y=alt.Y("value:Q", title=ytitle, scale=alt.Scale(zero=False)),
-    tooltip=[alt.Tooltip("month:T", format="%b %Y"), alt.Tooltip("value:Q", format=",.0f")]), use_container_width=True)
+    tooltip=[alt.Tooltip("month:T", format="%b %Y"), alt.Tooltip("value:Q", format=",.0f")]), width="stretch")
 st.caption("Boardings per trip = boardings at gates ÷ trips run. It is not occupancy: exits, trip length and train "
            "size are not in the data, so compare a line with itself over time, not with other lines.")
 
@@ -131,9 +131,9 @@ with left:
         trips_line = alt.Chart(ht).mark_line(interpolate="step-after", color="#8250df", strokeDash=[5, 3]).encode(
             x="hour:Q", y=alt.Y("trips:Q", title="Assumed trips per hour (monthly total, spread by the sliders)",
                                 axis=alt.Axis(titleColor="#8250df", orient="right")))
-        st.altair_chart(alt.layer(base, trips_line).resolve_scale(y="independent"), use_container_width=True)
+        st.altair_chart(alt.layer(base, trips_line).resolve_scale(y="independent"), width="stretch")
     else:
-        st.altair_chart(base, use_container_width=True)
+        st.altair_chart(base, width="stretch")
 with right:
     st.subheader("Summer scenario: August 2024 by day")
     over, n = view.august_over_forecast(D)
@@ -143,7 +143,7 @@ with right:
         st.altair_chart(alt.Chart(dd).mark_bar().encode(
             x=alt.X("date:T", title=None), y=alt.Y("boardings:Q", title="Forecast boardings per day"),
             color=alt.Color("day:N", legend=alt.Legend(orient="bottom", title=None)),
-            tooltip=[alt.Tooltip("date:T"), alt.Tooltip("boardings:Q", format=",.0f"), "day:N"]), use_container_width=True)
+            tooltip=[alt.Tooltip("date:T"), alt.Tooltip("boardings:Q", format=",.0f"), "day:N"]), width="stretch")
     else:
         st.info("No forecast for this line — demand view only.")
     st.caption(f"Summer scenario. The check rests on the {n} complete August days in the source files: on those "
@@ -157,7 +157,7 @@ st.altair_chart(alt.Chart(stations).mark_bar().encode(
     y=alt.Y("station:N", sort="-x", title=None), x=alt.X("boardings_day:Q", title="Boardings per day (last 8 weeks)"),
     color=alt.Color("group:N", legend=alt.Legend(orient="bottom", title=None)),
     tooltip=["station:N", "group:N", alt.Tooltip("boardings_day:Q", format=",.0f")]).properties(
-    height=max(120, 18 * len(stations))), use_container_width=True)
+    height=max(120, 18 * len(stations))), width="stretch")
 
 with st.expander("What we can't measure"):
     st.markdown("\n".join(f"- {x}" for x in [
@@ -167,8 +167,8 @@ with st.expander("What we can't measure"):
         "Source files are incomplete from August 2024 (19 complete days in Aug–Oct); the analysis stops at July 2024 and August is a summer scenario.",
         f"The school-break factor is learned from the first weeks of summer; on the {n} complete August days the forecast was {over * 100:.1f}% too high.",
         "Public holidays get one factor: Sunday holidays run above a normal Sunday and weekday holidays below a weekday, so it comes out near 1.0.",
-        "M9 Olimpiyat Doğu is event-driven (96% of boardings after 20:00) and is shown as demand only.",
-    ]))
+    ] + [f"{e['line']} {e['station'].title()} is event-driven ({e['late_share'] * 100:.0f}% of weekday boardings "
+         "after 20:00) and is shown as demand only." for e in D["meta"].get("event_units", [])]))
     st.markdown(f"**How stations are grouped** (matches the clustering for {D['meta']['rule_agreement'] * 100:.0f}% of stations): "
                 + D["meta"]["rule"])
 

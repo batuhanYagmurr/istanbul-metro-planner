@@ -74,6 +74,11 @@ def test_event_driven_station_is_demand_only(data):
     assert max(data["lines"]["MX"]["hourly"]["weekday"][21:22]) == 0
 
 
+def test_event_driven_units_are_listed_with_their_late_share(data):
+    # the README quotes this share; it must come from the data, not be typed in
+    assert data["meta"]["event_units"] == [{"line": "MX", "station": "STADIUM", "late_share": 1.0}]
+
+
 def test_backtest_block_reports_weighted_and_unweighted_errors_for_every_level(data):
     b = data["meta"]["backtest"]
     assert b["level_used"] in {"none", "station", "group"}
