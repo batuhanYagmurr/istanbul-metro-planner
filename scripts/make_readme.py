@@ -249,7 +249,7 @@ TEMPLATE = """# Istanbul Metro Service Planner
 
 Using the IBB Open Data Portal's hourly boardings ({data_start} to {data_end}, {n_days} days, {n_lines} rail lines) and the monthly trips each line ran, this project measures boardings per trip by line and month. It then groups {n_grouped} stations by when people board, forecasts August 2024 (a summer scenario) with a typical-week profile and special-day factors, and reads each line's 18 day-type × time bands against the line's own average. The forecast misses by **{error}** of boardings (weighted error, April–May 2024 backtest). The clearest result is negative. Weekday rush hours read "load per trip high" on {n_peak_lines} of the {n_card_lines} lines with trip data, but that reading depends entirely on an assumption about how trips are spread over the day, which IBB does not publish. The readings that hold under every assumption are mostly busy Saturday afternoons (16–19) and quiet 06:00 hours.
 
-Live app: not deployed yet
+Live app: [https://appapppy-frrvdz2txlxxaxbbtxorew.streamlit.app](https://appapppy-frrvdz2txlxxaxbbtxorew.streamlit.app)
 
 ![Panel, section 1 for line M2: a one-sentence measured finding, four tiles for July 2024 and the monthly boardings-per-trip trend since January 2023](docs/panel1.png)
 *Measured: the selected line's boardings per trip, July 2024 against July 2023, and the month-by-month trend.*
