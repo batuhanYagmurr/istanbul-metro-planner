@@ -613,6 +613,14 @@ git commit -m "feat: groups, backtest results, forecast and recommendations as a
 **Interfaces:**
 - Consumes: `app/data.json` schema (Task 6), `app/model.py` (Task 5)
 
+**Panel requirements (Batuhan, 2026-11-15) — override the layout list below where they differ; Streamlit code waits for approval of the browser mockup (`panel-mockup.html`, scratchpad):**
+- Measured data first: tiles and the monthly boardings-per-trip trend per line are section 1; the card is section 2.
+- The card is labelled "Scenario" (summer scenario, August 2024) and the two service-assumption sliders sit visibly at the top of the card.
+- Robust cells are solid; non-robust cells are faded (lower opacity, dashed border).
+- Wording describes load, not actions: "Load per trip high in this band" / "Load per trip low in this band" / "Near the line's average" — never "add trips" or "reduce".
+- A short note: boardings per trip is not occupancy (exits, trip length, train size are not in the data).
+- State the summer scenario and that the forecast ran 18.6% above the actual on the 6 complete August days (computed from `meta.backtest.complete_days`, not typed in).
+- The forecast-error figure is `meta.backtest.station_day_wape` (10.7%) in both panel and README, formatted the same way (one decimal); `tests/test_readme.py` and `tests/test_app.py` check the same string.
 Layout (one page, wide, English), following the sketch in spec §5:
 1. Title "Istanbul Metro Service Planner", selectors `Line` (lines with trips first) and `Day type`.
 2. Four tiles: "Boardings / day", "Trips / day", "Boardings / trip", "Forecast error (backtest)" = `meta.backtest.station_day_mape` as a percentage. Tile labels say "boardings", never "riders".
