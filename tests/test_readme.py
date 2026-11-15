@@ -66,3 +66,13 @@ def test_backtest_table_shows_old_and_new_values_side_by_side():
 def test_check_mode_passes_on_committed_readme():
     r = subprocess.run([sys.executable, str(ROOT / "scripts" / "make_readme.py"), "--check"])
     assert r.returncode == 0
+
+
+def test_readme_links_only_to_its_own_sources():
+    # no credit line and no link to another project's repository
+    import re
+    assert "inspired by" not in README.lower()
+    allowed = ("https://data.ibb.gov.tr", "https://appapppy-frrvdz2txlxxaxbbtxorew.streamlit.app",
+               "https://github.com/batuhanYagmurr/")
+    urls = re.findall(r"https?://[^\s)\]]+", README)
+    assert urls and all(u.startswith(allowed) for u in urls), [u for u in urls if not u.startswith(allowed)]
