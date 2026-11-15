@@ -1,0 +1,384 @@
+line,station,group,in_forecast
+F1,KABATAS,All-day & weekend,True
+F1,TAKSIM,All-day & weekend,True
+F4,ASIYAN,Transfer hub,True
+F4,RUMELI HISARUSTU,Transfer hub,True
+M1,AKSARAY,All-day & weekend,True
+M1,AKSARAY 1,All-day & weekend,True
+M1,ATAKOY,All-day & weekend,True
+M1,BAGCILAR MEYDAN,Morning departure,True
+M1,BAHCELIEVLER,Morning departure,True
+M1,BAKIRKOY,All-day & weekend,True
+M1,BAYRAMPASA,"Evening departure, quiet weekend",True
+M1,DAVUTPASA,"Evening departure, quiet weekend",True
+M1,EMNIYET,All-day & weekend,True
+M1,ESENLER,Morning departure,True
+M1,HAVAALANI,All-day & weekend,True
+M1,IDTM,"Evening departure, quiet weekend",True
+M1,KARTALTEPE,All-day & weekend,True
+M1,KIRAZLI,Morning departure,True
+M1,MENDERES,Morning departure,True
+M1,MERTER,Transfer hub,True
+M1,OTOGAR,All-day & weekend,True
+M1,OTOGAR 1,All-day & weekend,True
+M1,SAGMALCILAR,Morning departure,True
+M1,TERAZIDERE,Morning departure,True
+M1,UCYUZLU,Morning departure,True
+M1,ULUBATLI,Transfer hub,True
+M1,UNKNOWN,,False
+M1,YENIBOSNA,Morning departure,True
+M1,YENIKAPI,Transfer hub,True
+M1,ZEYTINBURNU,Transfer hub,True
+M2,4 LEVENT 2 GUNEY,Morning departure,True
+M2,4 LEVENT KUZEY,Morning departure,True
+M2,ATATURK OTO SANAYI GUNEY,"Evening departure, quiet weekend",True
+M2,ATATURK OTO SANAYI KUZEY,"Evening departure, quiet weekend",True
+M2,DARUSSAFAKA,Morning departure,True
+M2,GAYRETTEPE,Transfer hub,True
+M2,HACIOSMAN,Morning departure,True
+M2,HALIC GUNEY,All-day & weekend,True
+M2,HALIC KUZEY,Transfer hub,True
+M2,ITU GUNEY,"Evening departure, quiet weekend",True
+M2,ITU KUZEY,"Evening departure, quiet weekend",True
+M2,LEVENT 2 KUZEY,"Evening departure, quiet weekend",True
+M2,LEVENT GUNEY,Transfer hub,True
+M2,OSMANBEY 2 GUNEY,Morning departure,True
+M2,OSMANBEY KUZEY,"Evening departure, quiet weekend",True
+M2,SANAYI MAH. GUNEY,"Evening departure, quiet weekend",True
+M2,SANAYI MAH. KUZEY,"Evening departure, quiet weekend",True
+M2,SEYRANTEPE 1 BATI,Morning departure,True
+M2,SEYRANTEPE 2 DOGU,"Evening departure, quiet weekend",True
+M2,SEYRANTEPE 3 STAD GIRISI,All-day & weekend,True
+M2,SISHANE GUNEY,Morning departure,True
+M2,SISHANE KUZEY,All-day & weekend,True
+M2,SISLI 2 KUZEY,Transfer hub,True
+M2,SISLI GUNEY,All-day & weekend,True
+M2,TAKSIM GUNEY,All-day & weekend,True
+M2,VEZNECILER GUNEY,All-day & weekend,True
+M2,VEZNECILER KUZEY,"Evening departure, quiet weekend",True
+M2,YENIKAPI GUNEY,Transfer hub,True
+M2,YENIKAPI KUZEY,Transfer hub,True
+M3,BAKIRKOY IDO,,False
+M3,BASAK KONUTLARI,"Evening departure, quiet weekend",True
+M3,HAZNEDAR,,False
+M3,IKITELLI SANAYI,"Evening departure, quiet weekend",True
+M3,ILKYUVA,,False
+M3,INCIRLI,,False
+M3,ISTOC,"Evening departure, quiet weekend",True
+M3,KAYASEHIR MERKEZ,Morning departure,True
+M3,KIRAZLI,Morning departure,True
+M3,MAHMUTBEY,Morning departure,True
+M3,MAHMUTBEY M7 HOL 1,Transfer hub,True
+M3,MAHMUTBEY M7 HOL 2,Transfer hub,True
+M3,MAHMUTBEY M7 HOL 3,Transfer hub,True
+M3,MAHMUTBEY M7 HOL 4,Transfer hub,True
+M3,METROKENT,Morning departure,True
+M3,MOLLA GURANI,,False
+M3,ONURKENT,Morning departure,True
+M3,OZGURLUK MEYDANI GUNEY,,False
+M3,SEHIR HASTANESI,All-day & weekend,True
+M3,SITELER,"Evening departure, quiet weekend",True
+M3,TOPLU KONUTLAR,Morning departure,True
+M3,TURGUT OZAL,"Evening departure, quiet weekend",True
+M3,UNKNOWN,,False
+M3,YENI MAHALLE,Morning departure,True
+M4,ACIBADEM (BATI),"Evening departure, quiet weekend",True
+M4,ACIBADEM (DOGU),Morning departure,True
+M4,AYRILIKCESME,Transfer hub,True
+M4,BOSTANCI,Morning departure,True
+M4,BOSTANCI (BATI),Morning departure,True
+M4,BOSTANCI (DOGU),Morning departure,True
+M4,ESENKENT CEVIZLI,Transfer hub,True
+M4,FEVZI CAKMAK,Morning departure,True
+M4,GOZTEPE,Morning departure,True
+M4,GULSUYU,Morning departure,True
+M4,HASTANE (BATI),All-day & weekend,True
+M4,HASTANE (DOGU/ADLIYE),All-day & weekend,True
+M4,HUZUREVI,Morning departure,True
+M4,KADIKOY (BATI),Transfer hub,True
+M4,KADIKOY (DOGU),Transfer hub,True
+M4,KARTAL (BATI),Morning departure,True
+M4,KARTAL (DOGU),Morning departure,True
+M4,KOZYATAGI,Transfer hub,True
+M4,KUCUKYALI,Morning departure,True
+M4,KURTKOY,,False
+M4,M4 KURTKOY,Morning departure,True
+M4,MALTEPE,Morning departure,True
+M4,PENDIK (BATI),Morning departure,True
+M4,PENDIK (DOGU),Morning departure,True
+M4,SABIHA GOKCEN,All-day & weekend,True
+M4,SABIHA GOKCEN HAVALIMANI,,False
+M4,SOGANLIK,Morning departure,True
+M4,TAVSANTEPE (BATI),Morning departure,True
+M4,TAVSANTEPE (DOGU),Morning departure,True
+M4,UNALAN,Transfer hub,True
+M4,UNKNOWN,,False
+M4,YAKACIK (BATI),Morning departure,True
+M4,YAKACIK (DOGU),Morning departure,True
+M4,YAYALAR,Morning departure,True
+M4,YENISAHRA,"Evening departure, quiet weekend",True
+M5,ALTINSEHIR,Morning departure,True
+M5,ALTUNIZADE 1,Transfer hub,True
+M5,ALTUNIZADE 2,Transfer hub,True
+M5,BAGLARBASI,"Evening departure, quiet weekend",True
+M5,BULGURLU,Morning departure,True
+M5,CAKMAK,Morning departure,True
+M5,CARSI,Morning departure,True
+M5,CEKMEKOY 1,Morning departure,True
+M5,CEKMEKOY 2,Morning departure,True
+M5,DUDULLU,Transfer hub,True
+M5,FISTIKAGACI,Morning departure,True
+M5,IHLAMUR KUYU,Morning departure,True
+M5,IHLAMURKUYU,,False
+M5,IMAM HATIP LISESI,Morning departure,True
+M5,KISIKLI,"Evening departure, quiet weekend",True
+M5,MECLIS,,False
+M5,NECIP FAZIL,Morning departure,True
+M5,SAMANDIRA MERKEZ,,False
+M5,SANCAKTEPE,,False
+M5,SARIGAZI,,False
+M5,UMRANIYE,Morning departure,True
+M5,USKUDAR 1,Transfer hub,True
+M5,USKUDAR 2,Transfer hub,True
+M5,YAMANEVLER,Morning departure,True
+M6,BOGAZICI,Transfer hub,True
+M6,ETILER,"Evening departure, quiet weekend",True
+M6,LEVENT BATI KONKORS,Morning departure,True
+M6,LEVENT DOGU KONKORS,Transfer hub,True
+M6,NISPETIYE,"Evening departure, quiet weekend",True
+M7,ALIBEYKOY BATI,Transfer hub,True
+M7,ALIBEYKOY DOGU,Morning departure,True
+M7,CAGLAYAN BATI,"Evening departure, quiet weekend",True
+M7,CAGLAYAN DOGU,"Evening departure, quiet weekend",True
+M7,CIRCIR BATI,Morning departure,True
+M7,CIRCIR DOGU,Morning departure,True
+M7,GOZTEPE BATI,Morning departure,True
+M7,GOZTEPE DOGU,Morning departure,True
+M7,KAGITHANE BATI,"Evening departure, quiet weekend",True
+M7,KAGITHANE DOGU,Transfer hub,True
+M7,KARADENIZ MAH. BATI,Transfer hub,True
+M7,KARADENIZ MAH. DOGU,Morning departure,True
+M7,KAZIMKARABEKIR,Morning departure,True
+M7,M7 FULYA,"Evening departure, quiet weekend",True
+M7,M7 YILDIZ 1,Transfer hub,True
+M7,M7 YILDIZ 2,"Evening departure, quiet weekend",True
+M7,MAHMUTBEY M3 HOL 3,Transfer hub,True
+M7,MAHMUTBEY M3 HOL 4,Transfer hub,True
+M7,MAHMUTBEY M7 HOL 1,Morning departure,True
+M7,MAHMUTBEY M7 HOL 2,Morning departure,True
+M7,MECIDIYEKOY BATI,Transfer hub,True
+M7,MECIDIYEKOY DOGU,"Evening departure, quiet weekend",True
+M7,NURTEPE BATI,Morning departure,True
+M7,NURTEPE DOGU,Morning departure,True
+M7,ORUCREIS BATI,Morning departure,True
+M7,ORUCREIS DOGU,Morning departure,True
+M7,TEKSTILKENT,"Evening departure, quiet weekend",True
+M7,VEYSELKARANI BATI,Morning departure,True
+M7,VEYSELKARANI DOGU,Morning departure,True
+M7,YENIMAHALLE,Morning departure,True
+M7,YESILPINAR,Morning departure,True
+M8,AYSE KADIN,,False
+M8,AYSEKADIN,"Evening departure, quiet weekend",True
+M8,BOSTANCI,Transfer hub,True
+M8,DUDULLU,Transfer hub,True
+M8,EMIN ALI PASA,Morning departure,True
+M8,HUZUR,Morning departure,True
+M8,ICERENKOY,Morning departure,True
+M8,IMES,"Evening departure, quiet weekend",True
+M8,KAYISDAGI,"Evening departure, quiet weekend",True
+M8,KOZYATAGI,Transfer hub,True
+M8,KUCUKBAKKALKOY,"Evening departure, quiet weekend",True
+M8,MEVLANA,Morning departure,True
+M8,MODOKO,"Evening departure, quiet weekend",True
+M8,MODOKO KEYAP,,False
+M8,PARSELLER,Morning departure,True
+M8,UNKNOWN,,False
+M9,ATAKOY,,False
+M9,ATATURK MAHALLESI,,False
+M9,BAHARIYE,Morning departure,True
+M9,COBANCESME,,False
+M9,DOGU SANAYI,,False
+M9,HALKALI GUNEY,,False
+M9,HALKALI KUZEY,,False
+M9,HAVALIMANI (TERMINAL 1),,False
+M9,IHLAS YUVA,,False
+M9,M9 - 29 EKIM CUMHURIYET - IHLAS YUVA,,False
+M9,M9 15 TEMMUZ,,False
+M9,M9 29 EKIM CUMHURIYET-IHLAS YUVA,,False
+M9,M9 HALKALI GUNEY,,False
+M9,M9 HALKALI KUZEY,,False
+M9,M9 IKITELLI,,False
+M9,M9 IKITELLI SANAYI,,False
+M9,M9 YENIBOSNA,,False
+M9,MASKO,Transfer hub,True
+M9,OLIMPIYAT BATI,Morning departure,True
+M9,OLIMPIYAT DOGU,Event-driven (unpredictable),False
+M9,UNKNOWN,,False
+M9,ZIYA GOKALP MAH,,False
+M9,ZIYA GOKALP MAH.,"Evening departure, quiet weekend",True
+MARMARAY,ATAKOY,Morning departure,True
+MARMARAY,ATALAR,Morning departure,True
+MARMARAY,AYDINTEPE,Morning departure,True
+MARMARAY,AYRILIKCESMESI,Morning departure,True
+MARMARAY,BAKIRKOY-1,Morning departure,True
+MARMARAY,BAKIRKOY-2,All-day & weekend,True
+MARMARAY,BASAK,Morning departure,True
+MARMARAY,BOSTANCI-1,Morning departure,True
+MARMARAY,BOSTANCI-2,All-day & weekend,True
+MARMARAY,CAYIROVA,All-day & weekend,True
+MARMARAY,CEVIZLI-1,Morning departure,True
+MARMARAY,CEVIZLI-2,Morning departure,True
+MARMARAY,DARICA,Morning departure,True
+MARMARAY,ERENKOY,All-day & weekend,True
+MARMARAY,FATIH,Morning departure,True
+MARMARAY,FENERYOLU,"Evening departure, quiet weekend",True
+MARMARAY,FLORYA,All-day & weekend,True
+MARMARAY,FLORYA AQUA,All-day & weekend,True
+MARMARAY,GEBZE-1,All-day & weekend,True
+MARMARAY,GEBZE-2,Morning departure,True
+MARMARAY,GOZTEPE,Morning departure,True
+MARMARAY,GUZELYALI,Morning departure,True
+MARMARAY,HALKALI,Morning departure,True
+MARMARAY,ICMELER,Morning departure,True
+MARMARAY,IDEALTEPE,Morning departure,True
+MARMARAY,KARTAL,Morning departure,True
+MARMARAY,KAYNARCA,Morning departure,True
+MARMARAY,KAZLICESME,Morning departure,True
+MARMARAY,KUCUKCEKMECE,Morning departure,True
+MARMARAY,KUCUKYALI-1,Morning departure,True
+MARMARAY,KUCUKYALI-2,Morning departure,True
+MARMARAY,M.KEMAL,Morning departure,True
+MARMARAY,MALTEPE,Morning departure,True
+MARMARAY,OSMANGAZI,Morning departure,True
+MARMARAY,PENDIK,All-day & weekend,True
+MARMARAY,SIRKECI-1,All-day & weekend,True
+MARMARAY,SIRKECI-2,All-day & weekend,True
+MARMARAY,SIRKECI-3,All-day & weekend,True
+MARMARAY,SIRKECI-4,"Evening departure, quiet weekend",True
+MARMARAY,SOGUTLUCESME,All-day & weekend,True
+MARMARAY,SUADIYE,All-day & weekend,True
+MARMARAY,SUREYYA PLAJI,Morning departure,True
+MARMARAY,TERSANE-1,Morning departure,True
+MARMARAY,TERSANE-2,All-day & weekend,True
+MARMARAY,TUZLA,Morning departure,True
+MARMARAY,UNKNOWN,,False
+MARMARAY,USKUDAR-1,Morning departure,True
+MARMARAY,USKUDAR-2,Morning departure,True
+MARMARAY,USKUDAR-3,Morning departure,True
+MARMARAY,YENIKAPI-1,"Evening departure, quiet weekend",True
+MARMARAY,YENIKAPI-2,"Evening departure, quiet weekend",True
+MARMARAY,YENIKAPI-3,All-day & weekend,True
+MARMARAY,YENIMAHALLE,Morning departure,True
+MARMARAY,YESILKOY,All-day & weekend,True
+MARMARAY,YESILYURT,"Evening departure, quiet weekend",True
+MARMARAY,YUNUS,Morning departure,True
+MARMARAY,ZEYTINBURNU,Morning departure,True
+NOSTRAM,UNKNOWN,All-day & weekend,True
+T1,AKINCILAR,Morning departure,True
+T1,AKSARAY,All-day & weekend,True
+T1,AKSEMSETTIN,Morning departure,True
+T1,ATATURK OGRENCI YURDU,Morning departure,True
+T1,BAGCILAR,Morning departure,True
+T1,BEYAZIT,All-day & weekend,True
+T1,CAMI,Morning departure,True
+T1,CAPA,All-day & weekend,True
+T1,CEMBERLITAS,All-day & weekend,True
+T1,EMINONU 2,All-day & weekend,True
+T1,FINDIKLI,All-day & weekend,True
+T1,FINDIKZADE,All-day & weekend,True
+T1,GULHANE,All-day & weekend,True
+T1,GUNESTEPE,Morning departure,True
+T1,GUNGOREN,All-day & weekend,True
+T1,HASEKI,All-day & weekend,True
+T1,KABATAS,All-day & weekend,True
+T1,KABATAS 2,All-day & weekend,True
+T1,KARAKOY,All-day & weekend,True
+T1,KERESTECILER,"Evening departure, quiet weekend",True
+T1,LALELI,All-day & weekend,True
+T1,MEHMETAKIF,All-day & weekend,True
+T1,MERKEZEFENDI,Morning departure,True
+T1,MITHATPASA,Morning departure,True
+T1,PAZARTEKKE,All-day & weekend,True
+T1,SIRKECI,All-day & weekend,True
+T1,SOGANLI,Morning departure,True
+T1,SULTANAHMET,All-day & weekend,True
+T1,TOPHANE,All-day & weekend,True
+T1,TOPKAPI,Transfer hub,True
+T1,UNKNOWN,,False
+T1,YUSUFPASA,All-day & weekend,True
+T1,ZEYTINBURNU 2,Transfer hub,True
+T3,UNKNOWN,All-day & weekend,True
+T4,ALI FUAT BASGIL,Morning departure,True
+T4,BASTABYA,Morning departure,True
+T4,BEREC,Morning departure,True
+T4,CEBECI,Morning departure,True
+T4,CUKURCESME,Morning departure,True
+T4,CUMHURIYET,Morning departure,True
+T4,DEMIRKAPI,"Evening departure, quiet weekend",True
+T4,EDIRNEKAPI,Transfer hub,True
+T4,FETIHKAPI,"Evening departure, quiet weekend",True
+T4,HACI SUKRU,,False
+T4,HACISUKRU,Morning departure,True
+T4,KARADENIZ MAHALLESI,Morning departure,True
+T4,KIPTAS VENEZIA,Transfer hub,True
+T4,MESCIDI SELAM,Morning departure,True
+T4,METRIS,,False
+T4,RAMI,"Evening departure, quiet weekend",True
+T4,SAGMALCILAR,Morning departure,True
+T4,SEHITLIK,Transfer hub,True
+T4,SULTANCIFTLIGI,Morning departure,True
+T4,T4 KIPTAS VENEZIA,,False
+T4,TASKOPRU,Morning departure,True
+T4,TOPCULAR,"Evening departure, quiet weekend",True
+T4,TOPKAPI,Transfer hub,True
+T4,VATAN,Transfer hub,True
+T4,YENIMAHALLE,Morning departure,True
+T5,ALIBEYKOY,All-day & weekend,True
+T5,ALIBEYKOY METRO,Transfer hub,True
+T5,AYVANSARAY,All-day & weekend,True
+T5,BALAT,All-day & weekend,True
+T5,CEP OTOGAR,Morning departure,True
+T5,CIBALI,"Evening departure, quiet weekend",True
+T5,EMINONU,All-day & weekend,True
+T5,EYUP DEVLET HASTANESI,Morning departure,True
+T5,EYUP TELEFERIK,All-day & weekend,True
+T5,FENER,All-day & weekend,True
+T5,FESHANE,All-day & weekend,True
+T5,KUCUKPAZAR,Transfer hub,True
+T5,SILAHTARAGA,Morning departure,True
+T5,UNIVERSITE,Morning departure,True
+T5,UNKNOWN,,False
+TCDD-GH,ARNAVUTKOY  GUNEY,,False
+TCDD-GH,ARNAVUTKOY  KUZEY,,False
+TCDD-GH,GAYRETTEPE,,False
+TCDD-GH,GOKTURK,"Evening departure, quiet weekend",True
+TCDD-GH,HASDAL,All-day & weekend,True
+TCDD-GH,HAVALIMANI   (KARGO TERMINALI),"Evening departure, quiet weekend",True
+TCDD-GH,HAVALIMANI  (TERMINAL 1),All-day & weekend,True
+TCDD-GH,HAVALIMANI (KARGO TERMINALI ),,False
+TCDD-GH,HAVALIMANI (TERMINAL 1),,False
+TCDD-GH,IHSANIYE,Morning departure,True
+TCDD-GH,KAGITHANE,Morning departure,True
+TCDD-GH,KEMERBURGAZ,Morning departure,True
+TCDD-GH,M9 HALKALI GUNEY,,False
+TCDD-GH,TASOLUK   GUNEY,,False
+TCDD-GH,TASOLUK   KUZEY,,False
+TCDD-HB,ALTINSEHIR,,False
+TCDD-HB,BAHCESEHIR,Morning departure,True
+TCDD-HB,HALKALI,"Evening departure, quiet weekend",True
+TCDD-HB,ISPARTAKULE,Morning departure,True
+TCDD-HB,KONUTBIRLIK,,False
+TCDD-SK,CANKURTARAN,,False
+TCDD-SK,CERRAHPASA,,False
+TCDD-SK,KAZLICESME,,False
+TCDD-SK,KOCA MUSTAFA PASA,,False
+TCDD-SK,KUMKAPI,,False
+TCDD-SK,SIRKECI,,False
+TCDD-SK,YEDIKULE,,False
+TCDD-SK,YEDIKULKE,,False
+TCDD-SK,YENIKAPI,,False
+TF1,MACKA,All-day & weekend,True
+TF2,EYUP,All-day & weekend,True
+TF2,PIERLOTI,All-day & weekend,True
+TUNEL,BEYOGLU,All-day & weekend,True
+TUNEL,KARAKOY,All-day & weekend,True
