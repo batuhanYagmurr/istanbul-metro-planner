@@ -24,16 +24,7 @@ D = load()
 BT = D["meta"]["backtest"]
 LINES = sorted(D["lines"], key=lambda l: (not D["lines"][l]["has_trips"], l))
 
-st.markdown("""<style>
-table.card{border-collapse:separate;border-spacing:4px;width:100%}
-table.card th{font-size:12px;color:#656d76;font-weight:600;text-align:left;padding:2px 4px}
-table.card td{border-radius:6px;padding:6px 8px;font-size:13px;vertical-align:top;height:58px}
-table.card td.high{background:#fff1e5;color:#b35900;border:2px solid #b35900}
-table.card td.low{background:#e6f4fa;color:#0b6e99;border:2px solid #0b6e99}
-table.card td.typ{background:#eef0f2;color:#57606a;border:2px solid transparent}
-table.card td.weak{opacity:.42;border-style:dashed}
-table.card td span{font-size:11px;color:#656d76;display:block}
-</style>""", unsafe_allow_html=True)
+st.markdown(view.CARD_CSS, unsafe_allow_html=True)
 
 top_l, top_r = st.columns([4, 1])
 with top_r:
@@ -129,9 +120,11 @@ with left:
     if L["has_trips"]:
         ht = pd.DataFrame({"hour": range(24), "trips": view.assumed_trips_per_hour(L, peak, wknd, day)})
         trips_line = alt.Chart(ht).mark_line(interpolate="step-after", color="#8250df", strokeDash=[5, 3]).encode(
-            x="hour:Q", y=alt.Y("trips:Q", title="Assumed trips per hour (monthly total, spread by the sliders)",
+            x="hour:Q", y=alt.Y("trips:Q", title=view.TRIPS_AXIS_TITLE,
                                 axis=alt.Axis(titleColor="#8250df", orient="right")))
-        st.altair_chart(alt.layer(base, trips_line).resolve_scale(y="independent"), width="stretch")
+        st.altair_chart(alt.layer(base, trips_line).resolve_scale(y="independent").properties(height=320), width="stretch")
+        st.caption("Solid blue line, left axis: forecast boardings. Dashed purple line, right axis: assumed trips, "
+                   "i.e. the line's monthly trips spread over the hours by the two sliders (not a timetable).")
     else:
         st.altair_chart(base, width="stretch")
 with right:
@@ -152,12 +145,17 @@ with right:
                f"Forecast covers {L['forecast_coverage'] * 100:.0f}% of this line's boardings.")
 
 st.subheader("Stations on this line, by group")
-stations = pd.DataFrame(L["stations"]).assign(group=lambda d: d["group"].fillna("Too new to group"))
-st.altair_chart(alt.Chart(stations).mark_bar().encode(
-    y=alt.Y("station:N", sort="-x", title=None), x=alt.X("boardings_day:Q", title="Boardings per day (last 8 weeks)"),
-    color=alt.Color("group:N", legend=alt.Legend(orient="bottom", title=None)),
+top = pd.DataFrame(view.top_stations(L))
+n_units = len(L["stations"])
+st.altair_chart(alt.Chart(top).mark_bar().encode(
+    y=alt.Y("station:N", sort="-x", title=None, axis=alt.Axis(labelLimit=0, labelOverlap=False, labelFontSize=12)),
+    x=alt.X("boardings_day:Q", title="Boardings per day (last 8 weeks)"),
+    color=alt.Color("group:N", legend=alt.Legend(orient="bottom", title=None, labelLimit=0)),
     tooltip=["station:N", "group:N", alt.Tooltip("boardings_day:Q", format=",.0f")]).properties(
-    height=max(120, 18 * len(stations))), width="stretch")
+    height=alt.Step(24)), width="stretch")
+st.caption((f"The {len(top)} busiest of {n_units} station units; all are in data/station_groups.csv. "
+            if n_units > len(top) else f"All {n_units} station units. ")
+           + "A unit is one station's gates for this line; large stations have several entrances.")
 
 with st.expander("What we can't measure"):
     st.markdown("\n".join(f"- {x}" for x in [

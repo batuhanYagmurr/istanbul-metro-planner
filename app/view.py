@@ -62,3 +62,26 @@ def assumed_trips_per_hour(line: dict, peak_mult: float, weekend_mult: float, da
         for h in hours:
             out[h] = t[(day_type, band)] / len(hours)
     return out
+
+TRIPS_AXIS_TITLE = "Assumed trips per hour"
+TOP_STATIONS = 20
+
+# Solid cells (robust): tinted fill, dark text. Faded cells (depend on the assumptions): no fill, dashed
+# border, text in the page's own colour, so they read clearly in light and dark themes. No opacity:
+# it would fade the text too.
+CARD_CSS = """<style>
+table.card{border-collapse:separate;border-spacing:4px;width:100%}
+table.card th{font-size:12px;font-weight:600;text-align:left;padding:2px 4px}
+table.card td{border-radius:6px;padding:6px 8px;font-size:13px;vertical-align:top;height:58px}
+table.card td span{font-size:11px;display:block;margin-top:2px}
+table.card td.high{background:#fff1e5;color:#8a4500;border:2px solid #b35900}
+table.card td.low{background:#e6f4fa;color:#0a5878;border:2px solid #0b6e99}
+table.card td.typ{background:#eef0f2;color:#3d444d;border:2px solid #8c959f}
+table.card td.weak{background:transparent;color:inherit;border-style:dashed}
+</style>"""
+
+
+def top_stations(line: dict, n: int = TOP_STATIONS) -> list[dict]:
+    """The line's n busiest station units, busiest first, with a group name for every one."""
+    rows = sorted(line["stations"], key=lambda s: s["boardings_day"], reverse=True)[:n]
+    return [{**s, "group": s["group"] or "Too new to group"} for s in rows]

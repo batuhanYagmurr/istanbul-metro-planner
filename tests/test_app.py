@@ -105,3 +105,28 @@ def test_app_does_not_need_raw_data(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     assert not (tmp_path / "data" / "raw").exists()
     assert not run().exception
+
+
+# --- readability fixes (screenshots of 2026-11-15) -------------------------------------------
+
+def test_station_chart_shows_at_most_twenty_busiest_units_in_order():
+    for name, line in DATA["lines"].items():
+        top = view.top_stations(line)
+        assert len(top) == min(20, len(line["stations"])), name
+        vals = [s["boardings_day"] for s in top]
+        assert vals == sorted(vals, reverse=True)
+        assert all(s["group"] for s in top)            # never blank: "Too new to group" instead of None
+    m2 = view.top_stations(DATA["lines"]["M2"])
+    assert m2[0]["boardings_day"] == max(s["boardings_day"] for s in DATA["lines"]["M2"]["stations"])
+
+
+def test_right_axis_title_is_short_enough_not_to_be_cut():
+    # a rotated axis title longer than the chart height gets clipped; keep it short, explain in a caption
+    assert len(view.TRIPS_AXIS_TITLE) <= 25 and "trips" in view.TRIPS_AXIS_TITLE.lower()
+
+
+def test_faded_cells_keep_full_text_contrast():
+    css = view.CARD_CSS
+    weak = css[css.index("td.weak"):].split("}")[0]
+    assert "opacity" not in css          # opacity also fades the text
+    assert "dashed" in weak
